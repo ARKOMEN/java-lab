@@ -7,15 +7,13 @@ import java.util.stream.Collectors;
 
 class Word{
     static int all = 0;
-    public int cnt;
-    StringBuilder word;
+    private int cnt = 0;
+    private final StringBuilder word;
 
     public Word(StringBuilder w){
         word = w;
         cnt++;
     }
-    public StringBuilder getWord(){return word;}
-
     public int getCnt(){return cnt;}
     @Override
     public boolean equals(Object o) {
@@ -29,6 +27,52 @@ class Word{
     public int hashCode(){
         return word.hashCode();
     }
+
+    static Set<Word> parser(String fileName) throws IOException{
+        HashSet<Word> set = new HashSet<Word>();
+        int symb;
+        StringBuilder str = new StringBuilder();
+        try(BufferedReader buff = new BufferedReader(new FileReader(fileName))){
+            while((symb = buff.read()) != -1){
+                if(Character.isLetterOrDigit(symb)){
+                    str.append(Character.toChars(symb));
+                }
+                else if(!str.isEmpty()){
+                    Word.all++;
+                    Iterator<Word> itr = set.iterator();
+                    if(itr.hasNext()){
+                        Word next = itr.next();
+                        Word strBuff = new Word(str);
+                        while(!next.equals(strBuff) && itr.hasNext()){
+                            next = itr.next();
+                        }
+                        if(next.equals(strBuff)){
+                            next.cnt++;
+                        }
+                        else{
+                            set.add(new Word(str));
+                        }
+                    }
+                    else{
+                        set.add(new Word(str));
+                    }
+                    str = new StringBuilder();
+                }
+            }
+        }
+        Set<Word> sortSet = set.stream().sorted(Comparator.comparingInt(Word::getCnt).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
+        return sortSet;
+    }
+
+    static void createCSV(Set<Word> set) throws IOException{
+        try(BufferedWriter writer = new BufferedWriter(new FileWriter("file.csv"))){
+            Iterator<Word> itr = set.iterator();
+            while(itr.hasNext()){
+                Word next = itr.next();
+                writer.write(next.word.toString() + ',' + next.cnt + ',' + next.getCnt() * 100 / Word.all + "%" + "\n");
+            }
+        }
+    }
 }
 
 public class Main{
@@ -38,44 +82,7 @@ public class Main{
             return;
         }
 
-        HashSet<Word> set = new HashSet<Word>();
-        int symb;
-        StringBuilder str = new StringBuilder();
-        try(BufferedReader buff = new BufferedReader(new FileReader(args[0]))){
-            while((symb = buff.read()) != -1){
-                if(Character.isLetterOrDigit(symb)){
-                    str.append(Character.toChars(symb));
-                }
-                else if(!str.isEmpty()){
-                    Word.all++; 
-                    Iterator<Word> itr = set.iterator();
-                    if(itr.hasNext()){
-                         Word next = itr.next();
-                         Word strBuff = new Word(str);
-                         while(!next.equals(strBuff) && itr.hasNext()){
-                             next = itr.next();
-                         }
-                         if(next.equals(strBuff)){
-                             next.cnt++;
-                         }
-                         else{
-                             set.add(new Word(str));
-                         }
-                    }
-                    else{
-                        set.add(new Word(str));
-                    }
-                    str = new StringBuilder();
-                }
-            }
-        }
-        Set<Word> sortSet = set.stream().sorted(Comparator.comparingInt(Word::getCnt)).collect(Collectors.toSet());
-        try(BufferedWriter writer = new BufferedWriter(new FileWriter("file.csv"))){
-            Iterator<Word> itr = sortSet.iterator();
-            while(itr.hasNext()){
-                Word next = itr.next();
-                writer.write(next.getWord().toString() + ',' + next.cnt + ',' + next.getCnt() * 100 / Word.all + "%\n");
-            }
-        }
+        Set<Word> set = Word.parser(args[0]);
+        Word.createCSV(set);
     }
 }
