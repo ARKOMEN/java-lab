@@ -28,7 +28,7 @@ class Word{
         return word.hashCode();
     }
 
-    static Set<Word> parser(String fileName) throws IOException{
+    static ArrayList<Word> parser(String fileName) throws IOException{
         HashSet<Word> set = new HashSet<Word>();
         int symb;
         StringBuilder str = new StringBuilder();
@@ -60,13 +60,14 @@ class Word{
                 }
             }
         }
-        Set<Word> sortSet = set.stream().sorted(Comparator.comparingInt(Word::getCnt).reversed()).collect(Collectors.toCollection(LinkedHashSet::new));
-        return sortSet;
+        ArrayList<Word> list = new ArrayList<>(set);
+        list.sort(Comparator.comparingInt(Word::getCnt).reversed());
+        return list;
     }
 
-    static void createCSV(Set<Word> set) throws IOException{
+    static void createCSV(ArrayList<Word> list) throws IOException{
         try(BufferedWriter writer = new BufferedWriter(new FileWriter("file.csv"))){
-            Iterator<Word> itr = set.iterator();
+            Iterator<Word> itr = list.iterator();
             while(itr.hasNext()){
                 Word next = itr.next();
                 writer.write(next.word.toString() + ',' + next.cnt + ',' + next.getCnt() * 100 / Word.all + "%" + "\n");
@@ -82,7 +83,7 @@ public class Main{
             return;
         }
 
-        Set<Word> set = Word.parser(args[0]);
-        Word.createCSV(set);
+        ArrayList<Word> list = Word.parser(args[0]);
+        Word.createCSV(list);
     }
 }
