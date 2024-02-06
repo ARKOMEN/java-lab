@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Scanner;
 
 public class Main {
-    private String[] parser(String arg){
+    private static String[] parser(String arg){
         StringBuilder str = new StringBuilder();
         try(BufferedReader buff = new BufferedReader(new FileReader((arg)))){
             String command;
@@ -16,33 +16,27 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        String[] commands = str.toString().split(" ");
-        return commands;
+        return str.toString().split(" ");
     }
 
-    private String[] parser(){
+    private static String[] parser(){
         Scanner sc = new Scanner(System.in);
         StringBuilder str = new StringBuilder();
         while (sc.hasNext()){
             str.append(sc.nextLine()).append(" ");
         }
-        String[] commands = str.toString().split(" ");
-        return commands;
+        return str.toString().split(" ");
     }
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) {
+        String[] commands;
         if(args.length == 0){
-            //стандартный поток ввода
+            commands = parser();
         }
         else{
-            try(BufferedReader buff = new BufferedReader(new FileReader((args[0])))){
-                String command;
-                while ((command = buff.readLine()) != null){
-                    String[] words = command.split(" ");
-                    Factory commandFactory = new Factory();
-
-                }
-            }
+            commands = parser(args[0]);
         }
+        Calculator calculator = new Calculator();
+        calculator.calculation(commands);
     }
 }

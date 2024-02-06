@@ -1,0 +1,17 @@
+package ru.nsu.koshevoi;
+
+import java.util.Stack;
+
+public class Calculator {
+    Data data;
+    Calculator(){
+        data = new Data();
+    }
+    public void calculation(String[] str){
+        Factory factory = new Factory();
+        for(String comm : str){
+            Command command = factory.newCommand(comm);
+            command.command(data);
+        }
+    }
+}
