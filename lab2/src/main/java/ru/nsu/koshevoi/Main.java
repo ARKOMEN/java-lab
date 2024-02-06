@@ -1,35 +1,47 @@
 package ru.nsu.koshevoi;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
-    private static String[] parser(String arg){
+    public static List<String[]> parser(String arg){
         StringBuilder str = new StringBuilder();
-        try(BufferedReader buff = new BufferedReader(new FileReader((arg)))){
+        InputStream i = Main.class.getResourceAsStream(arg);
+        try(BufferedReader buff = new BufferedReader(new InputStreamReader((i)))){
             String command;
             while ((command = buff.readLine()) != null){
-                str.append(command).append(" ");
+                str.append(command);
             }
+            i.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        return str.toString().split(" ");
+        String[] tmp = str.toString().split("\n");
+        List<String[]> list = new ArrayList<>();
+        for(String string: tmp){
+            list.add(string.split(" "));
+        }
+        return list;
     }
 
-    private static String[] parser(){
+    public static List<String[]> parser(){
         Scanner sc = new Scanner(System.in);
         StringBuilder str = new StringBuilder();
         while (sc.hasNext()){
-            str.append(sc.nextLine()).append(" ");
+            str.append(sc.nextLine());
         }
-        return str.toString().split(" ");
+        String[] tmp = str.toString().split("\n");
+        List<String[]> list = new ArrayList<>();
+        for(String string: tmp){
+            list.add(string.split(" "));
+        }
+        return list;
     }
 
     public static void main(String[] args) {
-        String[] commands;
+        List<String[]> commands;
         if(args.length == 0){
             commands = parser();
         }
