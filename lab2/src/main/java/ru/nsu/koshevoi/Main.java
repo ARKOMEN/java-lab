@@ -1,17 +1,48 @@
 package ru.nsu.koshevoi;
 
-//TIP To <b>Run</b> code, press <shortcut actionId="Run"/> or
-// click the <icon src="AllIcons.Actions.Execute"/> icon in the gutter.
-public class Main {
-    public static void main(String[] args) {
-        //TIP Press <shortcut actionId="ShowIntentionActions"/> with your caret at the highlighted text
-        // to see how IntelliJ IDEA suggests fixing it.
-        System.out.printf("Hello and welcome!");
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Scanner;
 
-        for (int i = 1; i <= 5; i++) {
-            //TIP Press <shortcut actionId="Debug"/> to start debugging your code. We have set one <icon src="AllIcons.Debugger.Db_set_breakpoint"/> breakpoint
-            // for you, but you can always add more by pressing <shortcut actionId="ToggleLineBreakpoint"/>.
-            System.out.println("i = " + i);
+public class Main {
+    private String[] parser(String arg){
+        StringBuilder str = new StringBuilder();
+        try(BufferedReader buff = new BufferedReader(new FileReader((arg)))){
+            String command;
+            while ((command = buff.readLine()) != null){
+                str.append(command).append(" ");
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        String[] commands = str.toString().split(" ");
+        return commands;
+    }
+
+    private String[] parser(){
+        Scanner sc = new Scanner(System.in);
+        StringBuilder str = new StringBuilder();
+        while (sc.hasNext()){
+            str.append(sc.nextLine()).append(" ");
+        }
+        String[] commands = str.toString().split(" ");
+        return commands;
+    }
+
+    public static void main(String[] args) throws IOException {
+        if(args.length == 0){
+            //стандартный поток ввода
+        }
+        else{
+            try(BufferedReader buff = new BufferedReader(new FileReader((args[0])))){
+                String command;
+                while ((command = buff.readLine()) != null){
+                    String[] words = command.split(" ");
+                    Factory commandFactory = new Factory();
+
+                }
+            }
         }
     }
 }
