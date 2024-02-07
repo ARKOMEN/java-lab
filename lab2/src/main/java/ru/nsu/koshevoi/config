@@ -1,0 +1,9 @@
+DEFINE /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Define.java
++ /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Plus.java
+- /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Minus.java
+/ /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Division.java
+* /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Multiply.java
+PRINT /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Print.java
+PUSH /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Push.java
+POP /home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/Pop.java
+

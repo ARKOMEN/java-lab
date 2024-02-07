@@ -8,13 +8,11 @@ import java.util.Scanner;
 public class Main {
     public static List<String[]> parser(String arg){
         StringBuilder str = new StringBuilder();
-        InputStream i = Main.class.getResourceAsStream(arg);
-        try(BufferedReader buff = new BufferedReader(new InputStreamReader((i)))){
+        try(BufferedReader buff = new BufferedReader(new FileReader((arg)))){
             String command;
             while ((command = buff.readLine()) != null){
-                str.append(command);
+                str.append(command).append("\n");
             }
-            i.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -42,12 +40,13 @@ public class Main {
 
     public static void main(String[] args) {
         List<String[]> commands;
+        commands = parser("/home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/file.txt");/*
         if(args.length == 0){
             commands = parser();
         }
         else{
             commands = parser(args[0]);
-        }
+        }*/
         Calculator calculator = new Calculator();
         calculator.calculation(commands);
     }

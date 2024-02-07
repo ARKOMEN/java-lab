@@ -12,7 +12,7 @@ public class Calculator {
         Factory factory = new Factory();
         for(String[] comm : str){
             Command command = factory.newCommand(comm);
-            command.command(data);
+            command.command(data, comm);
         }
     }
 }
