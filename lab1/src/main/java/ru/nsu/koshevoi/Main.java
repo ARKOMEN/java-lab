@@ -1,9 +1,7 @@
 package ru.nsu.koshevoi;
-import javax.naming.NamingEnumeration;
 import java.io.*;
 import java.lang.StringBuilder;
 import java.util.*;
-import java.util.stream.Collectors;
 
 class Word{
     static int all = 0;
@@ -28,7 +26,7 @@ class Word{
         return word.hashCode();
     }
 
-    static ArrayList<Word> parser(String fileName) throws IOException{
+    static List<Word> parser(String fileName) throws IOException{
         HashSet<Word> set = new HashSet<Word>();
         int symb;
         StringBuilder str = new StringBuilder();
@@ -60,12 +58,12 @@ class Word{
                 }
             }
         }
-        ArrayList<Word> list = new ArrayList<>(set);
+        List<Word> list = new ArrayList<>(set);
         list.sort(Comparator.comparingInt(Word::getCnt).reversed());
         return list;
     }
 
-    static void createCSV(ArrayList<Word> list) throws IOException{
+    static void createCSV(List<Word> list) throws IOException{
         try(BufferedWriter writer = new BufferedWriter(new FileWriter("file.csv"))){
             Iterator<Word> itr = list.iterator();
             while(itr.hasNext()){
@@ -79,11 +77,11 @@ class Word{
 public class Main{
     public static void main(String[] args) throws IOException {
         if(args.length == 0){
-            System.err.println("no file or directory.");
+            System.err.println("error, enter the file name");
             return;
         }
 
-        ArrayList<Word> list = Word.parser(args[0]);
+        List<Word> list = Word.parser(args[0]);
         Word.createCSV(list);
     }
 }
