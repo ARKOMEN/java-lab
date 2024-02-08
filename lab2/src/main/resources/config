@@ -1,0 +1,9 @@
+DEFINE ru.nsu.koshevoi.Define
++ ru.nsu.koshevoi.Plus
+- ru.nsu.koshevoi.Minus
+/ ru.nsu.koshevoi.Division
+* ru.nsu.koshevoi.Multiply
+PRINT ru.nsu.koshevoi.Print
+PUSH ru.nsu.koshevoi.Push
+POP ru.nsu.koshevoi.Pop
+SQRT ru.nsu.koshevoi.SQRT
