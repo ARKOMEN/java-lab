@@ -2,9 +2,9 @@ package ru.nsu.koshevoi;
 
 public class Print implements Command{
     @Override
-    public void command(Data data, String[] strings){
+    public void command(Data data, String[] strings)throws EmptyStack{
         if(data.stack.isEmpty()){
-            //стек пуст
+            throw new EmptyStack();
         }
         else{
             double tmp = data.stack.pop();

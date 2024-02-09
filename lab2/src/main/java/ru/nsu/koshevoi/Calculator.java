@@ -12,7 +12,11 @@ public class Calculator {
         Factory factory = new Factory();
         for(String[] comm : str){
             Command command = factory.newCommand(comm);
-            command.command(data, comm);
+            try {
+                command.command(data, comm);
+            }catch (CalculatorExceptions e){
+                e.getException();
+            }
         }
     }
 }
