@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Factory {
-    public Command newCommand(String[] string){
+    public Command newCommand(String[] string)throws CalculatorExceptions{
         try {
             InputStream inputStream = Factory.class.getResourceAsStream("/config");
             if(inputStream != null){
@@ -24,10 +24,7 @@ public class Factory {
                         }
                     }
                 }
-                //исключение, нет такой команды
-            }
-            else{
-                //исключение
+                throw new СommandNotExist();
             }
         }
         catch (IOException e){
