@@ -1,8 +1,6 @@
 package ru.nsu.koshevoi;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Factory {
     public Command newCommand(String[] string)throws CalculatorExceptions{
