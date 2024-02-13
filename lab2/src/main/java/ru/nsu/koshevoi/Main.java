@@ -8,13 +8,12 @@ public class Main {
 
     public static void main(String[] args) {
         List<String[]> commands;
-        commands = parser("/home/artemiy/java-labs/java-lab/lab2/src/main/java/ru/nsu/koshevoi/file.txt");/*
-        if(args.length == 0){
+        if(args == null || args.length == 0){
             commands = parser();
         }
         else{
             commands = parser(args[0]);
-        }*/
+        }
         Calculator calculator = new Calculator();
         calculator.calculation(commands);
     }
