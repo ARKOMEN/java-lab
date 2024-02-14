@@ -12,12 +12,12 @@ public class Division implements Command{
         else{
             double a = data.stack.pop();
             double b = data.stack.pop();
-            if(b == 0){
+            if(a == 0){
                 data.stack.push(b);
                 data.stack.push(a);
                 throw new DivisionByZero();
             }
-            data.stack.push(a/b);
+            data.stack.push(b/a);
         }
     }
 }
