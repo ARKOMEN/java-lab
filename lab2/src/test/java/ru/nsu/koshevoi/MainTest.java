@@ -4,6 +4,7 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import ru.nsu.koshevoi.calculator.Main;
 
 import java.io.*;
 
@@ -36,7 +37,7 @@ public class MainTest {
         Assert.assertEquals("2.0", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion1() throws IOException{
+    public void division1() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "PUSH 4\n"+"PUSH 2\n" + "/\n" + "PRINT\n"
@@ -47,7 +48,7 @@ public class MainTest {
         Assert.assertEquals("2.0", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion2() throws IOException{
+    public void division2() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "PUSH 4\n" + "/\n" + "PRINT\n"
@@ -67,7 +68,7 @@ public class MainTest {
         Assert.assertEquals("0.0", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion4() throws IOException{
+    public void division4() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "PUSH 0\n"+"PUSH 4\n" + "/\n" + "PRINT\n"
@@ -77,7 +78,7 @@ public class MainTest {
         Assert.assertEquals("0.0", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion5() throws IOException{
+    public void division5() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "/\n"
@@ -87,7 +88,7 @@ public class MainTest {
         Assert.assertEquals("", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion6() throws IOException{
+    public void division6() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "5/3\n"
@@ -97,7 +98,7 @@ public class MainTest {
         Assert.assertEquals("", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion7() throws IOException{
+    public void division7() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "PUSH 5/3\n"
@@ -107,7 +108,7 @@ public class MainTest {
         Assert.assertEquals("", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void divizion8() throws IOException{
+    public void division8() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "PUSH 1\n" + "PUSH 3\n" + "/\n" + "PRINT\n"

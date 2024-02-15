@@ -1,13 +1,13 @@
-package ru.nsu.koshevoi;
+package ru.nsu.koshevoi.calculator;
 
 import java.util.List;
 
-import static ru.nsu.koshevoi.Parser.parser;
+import static ru.nsu.koshevoi.calculator.Parser.parser;
 
 public class Main {
 
     public static void main(String[] args) {
-        List<String[]> commands;
+        List<List<String>> commands;
         if(args == null || args.length == 0){
             commands = parser();
         }
