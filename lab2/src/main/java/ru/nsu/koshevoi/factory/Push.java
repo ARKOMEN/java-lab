@@ -1,13 +1,15 @@
 package ru.nsu.koshevoi.factory;
 
 import ru.nsu.koshevoi.calculator.Data;
+import ru.nsu.koshevoi.exception.CalculatorException;
+import ru.nsu.koshevoi.exception.ExtractingRootFromNegativeNumber;
 import ru.nsu.koshevoi.exception.InvalidData;
 
 import java.util.List;
 
 public class Push implements Command {
     @Override
-    public void command(Data data, List<String> strings)throws Exception{
+    public void command(Data data, List<String> strings)throws CalculatorException {
         if(strings.size() < 2){
             return;
         }

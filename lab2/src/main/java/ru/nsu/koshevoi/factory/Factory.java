@@ -1,12 +1,13 @@
 package ru.nsu.koshevoi.factory;
 
+import ru.nsu.koshevoi.exception.CalculatorException;
 import ru.nsu.koshevoi.exception.CommandNotExist;
 
 import java.io.*;
 import java.util.List;
 
 public class Factory {
-    public Command newCommand(List<String> string)throws Exception{
+    public Command newCommand(List<String> string)throws CalculatorException {
         try (InputStream inputStream = Factory.class.getResourceAsStream("/config")) {
             if (inputStream != null) {
                 InputStreamReader inputStreamReader = new InputStreamReader(inputStream);

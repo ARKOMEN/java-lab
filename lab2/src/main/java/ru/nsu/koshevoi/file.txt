@@ -1,1 +1,2 @@
-PUSH
+PUSH a 1
+PRINT

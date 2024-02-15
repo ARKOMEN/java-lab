@@ -118,10 +118,50 @@ public class MainTest {
         Assert.assertEquals("0.3333333333333333", outputStreamCaptor.toString().trim());
     }
     @Test
-    public void PUSH() throws IOException{
+    public void PUSH1() throws IOException{
         try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
             writer.write(
                     "PUSH\n"
+            );
+        }
+        Main.main(filename);
+        Assert.assertEquals("", outputStreamCaptor.toString().trim());
+    }
+    @Test
+    public void PUSH2() throws IOException{
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
+            writer.write(
+                    "PUSH aaaa\n" + "PRINT\n"
+            );
+        }
+        Main.main(filename);
+        Assert.assertEquals("", outputStreamCaptor.toString().trim());
+    }
+    @Test
+    public void PUSH3() throws IOException{
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
+            writer.write(
+                    "PUSH 1\n" + "PRINT\n"
+            );
+        }
+        Main.main(filename);
+        Assert.assertEquals("1.0", outputStreamCaptor.toString().trim());
+    }
+    @Test
+    public void PUSH4() throws IOException{
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
+            writer.write(
+                    "PUSH a 1\n" + "PRINT\n"
+            );
+        }
+        Main.main(filename);
+        Assert.assertEquals("", outputStreamCaptor.toString().trim());
+    }
+    @Test
+    public void POP() throws IOException{
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter((filename[0])))) {
+            writer.write(
+                    "\n"
             );
         }
         Main.main(filename);
