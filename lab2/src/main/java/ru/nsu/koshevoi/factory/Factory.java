@@ -24,7 +24,7 @@ public class Factory {
                         }
                     }
                 }
-                throw new CommandNotExist("the command does not exist");
+                throw new CommandNotExist();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

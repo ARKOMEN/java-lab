@@ -7,7 +7,7 @@ import java.util.Stack;
 public class Data {
     private Stack<Double> stack;
     private Map<String, Double> map;
-    Data(){
+    public Data(){
         stack = new Stack<>();
         map = new HashMap<>();
     }

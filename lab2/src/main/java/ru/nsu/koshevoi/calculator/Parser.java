@@ -18,20 +18,22 @@ public class Parser {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        List<String> tmp = new ArrayList<String>(List.of(str.toString().split("\n")));
-        List<List<String>> list = new ArrayList<>();
-        for(String string: tmp){
-            list.add(List.of(string.split(" ")));
-        }
-        return list;
+        return getLists(str);
     }
-
     public static List<List<String>> parser(){
         Scanner sc = new Scanner(System.in);
         StringBuilder str = new StringBuilder();
+        String buf;
         while (sc.hasNext()){
-            str.append(sc.nextLine());
+            buf = sc.nextLine();
+            if(buf.equals("exit")){
+                break;
+            }
+            str.append(buf).append("\n");
         }
+        return getLists(str);
+    }
+    private static List<List<String>> getLists(StringBuilder str) {
         List<String> tmp = new ArrayList<String>(List.of(str.toString().split("\n")));
         List<List<String>> list = new ArrayList<>();
         for(String string: tmp){

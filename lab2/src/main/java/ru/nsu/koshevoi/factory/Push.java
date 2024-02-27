@@ -21,7 +21,7 @@ public class Push implements Command {
                 data.getStack().push(data.getMap().get(strings.get(1)));
             }
             else {
-                throw new InvalidData("invalid data");
+                throw new InvalidData();
             }
         }
     }
