@@ -1,2 +1,4 @@
-PUSH a 1
+PUSH 1
+PUSH 1
++
 PRINT
