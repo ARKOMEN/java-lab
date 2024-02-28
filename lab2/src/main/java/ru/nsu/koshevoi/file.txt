@@ -1,3 +1,4 @@
+PUS 1
 PUSH 1
 PUSH 1
 +

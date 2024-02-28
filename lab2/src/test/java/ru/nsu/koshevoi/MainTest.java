@@ -122,7 +122,7 @@ public class MainTest {
     @Test
     public void division6() {
         CalculatorException thrown = Assert.assertThrows(CalculatorException.class, () -> {
-            Factory factory = new Factory();
+            SimpleFactory factory = new SimpleFactory();
             Command command = factory.createCommand(List.of("5/3"));
         });
         Assert.assertEquals("the command does not exist", thrown.getMessage());

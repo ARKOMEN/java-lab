@@ -6,11 +6,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CacheFactory implements FactoryInterface {
-    Factory factory;
+public class CacheFactory implements Factory {
+    SimpleFactory factory;
     Map<String, Command> map;
     public CacheFactory(){
-        factory = new Factory();
+        factory = new SimpleFactory();
         map = new HashMap<>();
     }
     public Command createCommand(List<String> string)throws CalculatorException{
