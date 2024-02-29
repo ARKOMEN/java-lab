@@ -4,6 +4,7 @@ import ru.nsu.koshevoi.exception.CalculatorException;
 import ru.nsu.koshevoi.factory.CacheFactory;
 import ru.nsu.koshevoi.factory.Command;
 import ru.nsu.koshevoi.factory.Factory;
+import ru.nsu.koshevoi.factory.SimpleFactory;
 
 import java.util.List;
 
@@ -20,7 +21,7 @@ public class Main {
             commands = parser(args[0]);
         }
         Data data = new Data();
-        Factory factory = new CacheFactory();
+        Factory factory = new CacheFactory(new SimpleFactory());
         for(List<String> comm : commands){
             try {
                 Command command = factory.createCommand(comm);

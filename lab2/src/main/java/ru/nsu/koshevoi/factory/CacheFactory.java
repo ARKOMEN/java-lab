@@ -7,10 +7,10 @@ import java.util.List;
 import java.util.Map;
 
 public class CacheFactory implements Factory {
-    SimpleFactory factory;
+    Factory factory;
     Map<String, Command> map;
-    public CacheFactory(){
-        factory = new SimpleFactory();
+    public CacheFactory(Factory newFactory){
+        factory = newFactory;
         map = new HashMap<>();
     }
     public Command createCommand(List<String> string)throws CalculatorException{
