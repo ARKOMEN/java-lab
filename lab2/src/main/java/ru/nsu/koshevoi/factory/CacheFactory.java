@@ -7,8 +7,8 @@ import java.util.List;
 import java.util.Map;
 
 public class CacheFactory implements Factory {
-    Factory factory;
-    Map<String, Command> map;
+    private final Factory factory;
+    private final Map<String, Command> map;
     public CacheFactory(Factory newFactory){
         factory = newFactory;
         map = new HashMap<>();

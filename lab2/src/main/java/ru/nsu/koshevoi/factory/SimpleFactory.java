@@ -17,8 +17,7 @@ public class SimpleFactory implements Factory {
                     List<String> list = List.of(line.split(" "));
                     if (list.getFirst().equals(string.getFirst())) {
                         try {
-                            String className = line.split(" ")[1];
-                            Object command = Class.forName(className).newInstance();
+                            Object command = Class.forName(list.get(1)).newInstance();
                             return (Command) command;
                         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                             throw new RuntimeException(e);
