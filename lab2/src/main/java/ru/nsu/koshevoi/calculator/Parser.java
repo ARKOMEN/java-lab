@@ -26,7 +26,7 @@ public class Parser {
         String buf;
         while (sc.hasNext()){
             buf = sc.nextLine();
-            if(buf.equals("exit")){
+             if(buf.equals("exit")){
                 break;
             }
             str.append(buf).append("\n");
