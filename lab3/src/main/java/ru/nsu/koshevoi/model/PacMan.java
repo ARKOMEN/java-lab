@@ -3,17 +3,17 @@ package ru.nsu.koshevoi.model;
 public class PacMan {
     private int x;
     private int y;
-    private Direction direction;
+    private PacManDirection direction;
     private int speed;
 
     public PacMan(int x, int y, int speed) {
         this.x = x;
         this.y = y;
-        this.direction = Direction.RIGHT;
+        this.direction = PacManDirection.NONE;
         this.speed = speed;
     }
 
-    public void move(Direction direction) {
+    public void move(PacManDirection direction) {
         this.direction = direction;
         switch (direction) {
             case UP:
@@ -39,11 +39,11 @@ public class PacMan {
         return y;
     }
 
-    public Direction getDirection() {
+    public PacManDirection getDirection() {
         return direction;
     }
 
-    public void changeDirection(Direction direction) {
+    public void changeDirection(PacManDirection direction) {
         if (this.direction.opposite() != direction) {
             this.direction = direction;
         }

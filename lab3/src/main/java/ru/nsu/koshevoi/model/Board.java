@@ -1,27 +1,38 @@
 package ru.nsu.koshevoi.model;
 
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class Board {
-    private int width;
+    private final int width;
     private int height;
-    private List<Wall> walls;
-    private List<PowerPellet> powerPellets;
-    private List<Ghost> ghosts;
-    private PacMan pacMan;
-
-    public Board(int width, int height, List<Ghost> ghost) {
-        this.width = width;
-        this.height = height;
+    private final List<Wall> walls;
+    private final List<PowerPellet> powerPellets;
+    public Board() throws IOException {
+        this.height = 0;
         this.walls = new ArrayList<>();
-        for(int i = 0; i < width; i++){
-            for(int j = 0; j < height; j++){
-                //addWall();
-            }
-        }
         this.powerPellets = new ArrayList<>();
-        this.ghosts = ghost;
+        try(InputStream stream = Board.class.getResourceAsStream("/map.txt")){
+            assert stream != null;
+            Scanner scanner = new Scanner(stream);
+            String walls = null;
+            while (scanner.hasNextLine()){
+                walls = scanner.nextLine();
+                for(int i = 0; i < walls.length(); i++){
+                    if(walls.charAt(i) == '1'){
+                        Wall wall = new Wall(i, this.height, 1, 1);
+                        addWall(wall);
+                    } else if (walls.charAt(i) == '4') {
+                        PowerPellet powerPellet = new PowerPellet(i, this.height);
+                    }
+                }
+                this.height++;
+            }
+            assert walls != null;
+            this.width = walls.length();
+        }
     }
 
     public void addWall(Wall wall) {
@@ -32,36 +43,20 @@ public class Board {
         powerPellets.add(powerPellet);
     }
 
-    public void addGhost(Ghost ghost) {
-        ghosts.add(ghost);
-    }
-
-    public void addPacMan(PacMan pacMan) {
-        this.pacMan = pacMan;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
-    }
-
     public List<Wall> getWalls() {
-        return walls;
+        return this.walls;
     }
 
     public List<PowerPellet> getPowerPellets() {
-        return powerPellets;
+        return this.powerPellets;
     }
 
-    public List<Ghost> getGhosts() {
-        return ghosts;
+    public int getWidth(){
+        return this.width;
     }
 
-    public PacMan getPacMan() {
-        return pacMan;
+    public int getHeight(){
+        return this.height;
     }
 
     public boolean isColliding(int x, int y) {
@@ -70,9 +65,5 @@ public class Board {
 
     public boolean isPowerPelletEaten(int x, int y) {
         return powerPellets.removeIf(powerPellet -> powerPellet.isColliding(x, y));
-    }
-
-    public boolean isGhostEaten(int x, int y) {
-        return ghosts.removeIf(ghost -> ghost.isColliding(x, y));
     }
 }

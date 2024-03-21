@@ -1,12 +1,12 @@
 package ru.nsu.koshevoi.model;
 
-public enum Direction {
+public enum GhostsDirection {
     UP,
     DOWN,
     LEFT,
     RIGHT;
 
-    public Direction opposite() {
+    public GhostsDirection opposite() {
         switch (this) {
             case UP:
                 return DOWN;
