@@ -3,13 +3,15 @@ package ru.nsu.koshevoi.model;
 public class Ghost {
     private int x;
     private int y;
-    private int speed;
     private GhostsDirection direction;
+    private final int WIDTH;
+    private final int HEIGHT;
 
-    public Ghost(int x, int y, int speed) {
+    public Ghost(int x, int y, int WIDTH, int HEIGHT) {
         this.x = x;
         this.y = y;
-        this.speed = speed;
+        this.HEIGHT = HEIGHT;
+        this.WIDTH = WIDTH;
         this.direction = GhostsDirection.RIGHT;
     }
 
@@ -20,16 +22,32 @@ public class Ghost {
     public void update() {
         switch (direction) {
             case UP:
-                y -= speed;
+                if(y - 2 >= 0)
+                    y -= 2;
+                else{
+                    direction = GhostsDirection.DOWN;
+                }
                 break;
             case DOWN:
-                y += speed;
+                if(y + 2 < HEIGHT * 20)
+                    y += 2;
+                else{
+                    direction = GhostsDirection.UP;
+                }
                 break;
             case LEFT:
-                x -= speed;
+                if(x - 2 >= 0)
+                    x -= 2;
+                else{
+                    direction = GhostsDirection.RIGHT;
+                }
                 break;
             case RIGHT:
-                x += speed;
+                if(x + 2 < WIDTH * 20)
+                    x += 2;
+                else{
+                    direction = GhostsDirection.LEFT;
+                }
                 break;
         }
     }

@@ -8,8 +8,8 @@ import java.util.List;
 public class PacManModel implements AutoCloseable {
     private static int WIDTH;
     private static int HEIGHT;
-    private static final int SPEED = 2;
-    private final long timeout = 5000;
+    private static final int SPEED = 1;
+    private final long timeout = 100;
     private Thread thread;
     private ModelListener listener;
     private State state = State.STAND;
@@ -22,18 +22,18 @@ public class PacManModel implements AutoCloseable {
         thread = new Ticker(this);
         thread.start();
         generate();
-        this.WIDTH = board.getWidth();
-        this.HEIGHT = board.getHeight();
     }
 
     synchronized void generate() throws IOException {
         board = new Board();
+        WIDTH = board.getWidth();
+        HEIGHT = board.getHeight();
         ghosts = new ArrayList<>();
-        ghosts.add(new Ghost(1, 1, SPEED));
-        ghosts.add(new Ghost(1, HEIGHT - 1, SPEED));
-        ghosts.add(new Ghost(WIDTH - 1, 1, SPEED));
-        ghosts.add(new Ghost(WIDTH - 1, HEIGHT - 1, SPEED));
-        pacMan = new PacMan(WIDTH / 2, HEIGHT / 2, SPEED);
+        ghosts.add(new Ghost(1, 1, WIDTH, HEIGHT));
+        ghosts.add(new Ghost(1, HEIGHT - 1, WIDTH, HEIGHT));
+        ghosts.add(new Ghost(WIDTH - 1, 1, WIDTH, HEIGHT));
+        ghosts.add(new Ghost(WIDTH - 1, HEIGHT - 1, WIDTH, HEIGHT));
+        pacMan = new PacMan(WIDTH * 10, HEIGHT * 10, WIDTH, HEIGHT);
         state = State.STAND;
         notifyMovement();
     }
@@ -49,9 +49,11 @@ public class PacManModel implements AutoCloseable {
     }
     public void movePacMan(PacManDirection direction) {
         pacMan.move(direction);
+        notifyMovement();
     }
     public void moveGhost(Ghost ghost, GhostsDirection direction) {
         ghost.move(direction);
+        notifyMovement();
     }
 
     public void update() {
@@ -59,6 +61,8 @@ public class PacManModel implements AutoCloseable {
         for (Ghost ghost : ghosts) {
             ghost.update();
         }
+        notifyMovement();
+
     }
     private void notifyMovement(){
         if(null != listener){

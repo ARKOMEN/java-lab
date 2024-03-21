@@ -1,32 +1,42 @@
 package ru.nsu.koshevoi.model;
 
+import java.nio.file.WatchEvent;
+
 public class PacMan {
     private int x;
     private int y;
     private PacManDirection direction;
-    private int speed;
+    private final int WIDTH;
+    private final int HEIGHT;
 
-    public PacMan(int x, int y, int speed) {
+    public PacMan(int x, int y, int WIDTH, int HEIGHT) {
         this.x = x;
         this.y = y;
+        this.WIDTH = WIDTH;
+        this.HEIGHT = HEIGHT;
         this.direction = PacManDirection.NONE;
-        this.speed = speed;
     }
 
     public void move(PacManDirection direction) {
         this.direction = direction;
         switch (direction) {
             case UP:
-                y--;
+                if(y - 2 >= 0)
+                    y -= 2;
                 break;
             case DOWN:
-                y++;
+                if(y + 2 < HEIGHT * 20)
+                    y += 2;
                 break;
             case LEFT:
-                x--;
+                if(x - 2 >= 0)
+                    x -= 2;
                 break;
             case RIGHT:
-                x++;
+                if(x + 2 < WIDTH * 20)
+                    x += 2;
+                break;
+            case NONE:
                 break;
         }
     }
@@ -49,6 +59,6 @@ public class PacMan {
         }
     }
     public void update() {
-        move(direction);
+        move(PacManDirection.NONE);
     }
 }
