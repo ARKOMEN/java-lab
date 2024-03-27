@@ -1,7 +1,5 @@
 package ru.nsu.koshevoi.model;
 
-import javax.security.auth.callback.PasswordCallback;
-
 public class Ticker extends Thread {
 
     private final PacManModel model;

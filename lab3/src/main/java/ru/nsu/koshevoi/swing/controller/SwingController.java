@@ -30,16 +30,16 @@ public class SwingController extends WindowAdapter implements KeyListener {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                model.movePacMan(PacManDirection.UP);
+                model.setNewPacManDirection(PacManDirection.UP);
                 break;
             case KeyEvent.VK_DOWN:
-                model.movePacMan(PacManDirection.DOWN);
+                model.setNewPacManDirection(PacManDirection.DOWN);
                 break;
             case KeyEvent.VK_LEFT:
-                model.movePacMan(PacManDirection.LEFT);
+                model.setNewPacManDirection(PacManDirection.LEFT);
                 break;
             case KeyEvent.VK_RIGHT:
-                model.movePacMan(PacManDirection.RIGHT);
+                model.setNewPacManDirection(PacManDirection.RIGHT);
                 break;
         }
     }

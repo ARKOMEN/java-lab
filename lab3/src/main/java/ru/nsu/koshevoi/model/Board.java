@@ -10,7 +10,9 @@ public class Board {
     private int height;
     private final List<Wall> walls;
     private final List<PowerPellet> powerPellets;
+    private List<String> map;
     public Board() throws IOException {
+        map = new ArrayList<String>();
         this.height = 0;
         this.walls = new ArrayList<>();
         this.powerPellets = new ArrayList<>();
@@ -20,6 +22,7 @@ public class Board {
             String walls = null;
             while (scanner.hasNextLine()){
                 walls = scanner.nextLine();
+                map.add(walls);
                 for(int i = 0; i < walls.length(); i++){
                     if(walls.charAt(i) == '1'){
                         Wall wall = new Wall(i, this.height, 1, 1);
@@ -59,11 +62,10 @@ public class Board {
         return this.height;
     }
 
-    public boolean isColliding(int x, int y) {
-        return walls.stream().anyMatch(wall -> wall.isColliding(x, y));
-    }
-
     public boolean isPowerPelletEaten(int x, int y) {
         return powerPellets.removeIf(powerPellet -> powerPellet.isColliding(x, y));
+    }
+    public List<String> getMap(){
+        return this.map;
     }
 }

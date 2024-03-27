@@ -67,7 +67,7 @@ public class MainWindow extends JFrame implements ModelListener {
 
             PacMan pacMan = model.getPacMan();
             g.setColor(Color.BLUE);
-            g.fillOval(pacMan.getX(), pacMan.getY(), SIZE, SIZE);
+            g.fillOval(pacMan.getX()*SIZE, pacMan.getY()*SIZE, SIZE, SIZE);
 
             ArrayList<Ghost> ghosts = (ArrayList<Ghost>) model.getGhosts();
             for (Ghost ghost : ghosts) {

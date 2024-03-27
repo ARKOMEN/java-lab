@@ -21,20 +21,20 @@ public class PacMan {
         this.direction = direction;
         switch (direction) {
             case UP:
-                if(y - 2 >= 0)
-                    y -= 2;
+                if(y - 1 >= 0)
+                    y -= 1;
                 break;
             case DOWN:
-                if(y + 2 < HEIGHT * 20)
-                    y += 2;
+                if(y + 1 < HEIGHT * 20)
+                    y += 1;
                 break;
             case LEFT:
-                if(x - 2 >= 0)
-                    x -= 2;
+                if(x - 1 >= 0)
+                    x -= 1;
                 break;
             case RIGHT:
-                if(x + 2 < WIDTH * 20)
-                    x += 2;
+                if(x + 1 < WIDTH * 20)
+                    x += 1;
                 break;
             case NONE:
                 break;
@@ -57,8 +57,5 @@ public class PacMan {
         if (this.direction.opposite() != direction) {
             this.direction = direction;
         }
-    }
-    public void update() {
-        move(PacManDirection.NONE);
     }
 }
