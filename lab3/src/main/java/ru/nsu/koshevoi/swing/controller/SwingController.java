@@ -1,6 +1,6 @@
 package ru.nsu.koshevoi.swing.controller;
 
-import ru.nsu.koshevoi.model.PacManDirection;
+import ru.nsu.koshevoi.model.Direction;
 import ru.nsu.koshevoi.model.PacManModel;
 
 import java.awt.event.*;
@@ -30,16 +30,16 @@ public class SwingController extends WindowAdapter implements KeyListener {
     public void keyPressed(KeyEvent e) {
         switch (e.getKeyCode()) {
             case KeyEvent.VK_UP:
-                model.setNewPacManDirection(PacManDirection.UP);
+                model.setNewPacManDirection(Direction.UP);
                 break;
             case KeyEvent.VK_DOWN:
-                model.setNewPacManDirection(PacManDirection.DOWN);
+                model.setNewPacManDirection(Direction.DOWN);
                 break;
             case KeyEvent.VK_LEFT:
-                model.setNewPacManDirection(PacManDirection.LEFT);
+                model.setNewPacManDirection(Direction.LEFT);
                 break;
             case KeyEvent.VK_RIGHT:
-                model.setNewPacManDirection(PacManDirection.RIGHT);
+                model.setNewPacManDirection(Direction.RIGHT);
                 break;
         }
     }

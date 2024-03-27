@@ -1,13 +1,13 @@
 package ru.nsu.koshevoi.model;
 
-public enum PacManDirection {
+public enum Direction {
     NONE,
     UP,
     DOWN,
     LEFT,
     RIGHT;
 
-    public PacManDirection opposite() {
+    public Direction opposite() {
         return NONE;
     }
 }

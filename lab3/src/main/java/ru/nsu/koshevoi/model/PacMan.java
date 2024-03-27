@@ -1,11 +1,9 @@
 package ru.nsu.koshevoi.model;
 
-import java.nio.file.WatchEvent;
-
-public class PacMan {
+public class PacMan implements GameObject{
     private int x;
     private int y;
-    private PacManDirection direction;
+    private Direction direction;
     private final int WIDTH;
     private final int HEIGHT;
 
@@ -14,10 +12,10 @@ public class PacMan {
         this.y = y;
         this.WIDTH = WIDTH;
         this.HEIGHT = HEIGHT;
-        this.direction = PacManDirection.NONE;
+        this.direction = Direction.NONE;
     }
-
-    public void move(PacManDirection direction) {
+    @Override
+    public void move(Direction direction) {
         this.direction = direction;
         switch (direction) {
             case UP:
@@ -40,20 +38,20 @@ public class PacMan {
                 break;
         }
     }
-
+    @Override
     public int getX() {
         return x;
     }
-
+    @Override
     public int getY() {
         return y;
     }
 
-    public PacManDirection getDirection() {
+    public Direction getDirection() {
         return direction;
     }
 
-    public void changeDirection(PacManDirection direction) {
+    public void changeDirection(Direction direction) {
         if (this.direction.opposite() != direction) {
             this.direction = direction;
         }
