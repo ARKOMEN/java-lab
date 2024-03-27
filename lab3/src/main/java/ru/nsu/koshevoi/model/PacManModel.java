@@ -12,8 +12,7 @@ public class PacManModel implements AutoCloseable {
     private final long timeout = 145;
     private Thread thread;
     private ModelListener listener;
-    private State state = State.STAND;
-
+    private int score = 0;
     private Direction newPacManDirection;
     private PacMan pacMan;
     private List<Ghost> ghosts;
@@ -34,7 +33,6 @@ public class PacManModel implements AutoCloseable {
         ghosts.add(new Ghost(WIDTH - 2, 1, WIDTH, HEIGHT));
         ghosts.add(new Ghost(WIDTH - 2, HEIGHT - 2, WIDTH, HEIGHT));
         pacMan = new PacMan(WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);
-        state = State.STAND;
         newPacManDirection = pacMan.getDirection();
         notifyMovement();
     }
@@ -49,7 +47,7 @@ public class PacManModel implements AutoCloseable {
         return board;
     }
 
-    public boolean test(GameObject object, Direction direction) {
+    public boolean checkWall(GameObject object, Direction direction) {
         return switch (direction) {
             case UP -> board.getMap().get((object.getY() - 1)).charAt(object.getX()) != '1';
             case DOWN -> board.getMap().get((object.getY() + 1)).charAt(object.getX()) != '1';
@@ -59,29 +57,34 @@ public class PacManModel implements AutoCloseable {
         };
     }
     public void MovePacMan(Direction direction) {
-        if(test(pacMan, direction)){
+        if (checkWall(pacMan, direction)) {
             pacMan.move(direction);
-        } else if (test(pacMan, pacMan.getDirection())) {
+        } else if (checkWall(pacMan, pacMan.getDirection())) {
             pacMan.move(pacMan.getDirection());
-        }
-        else{
+        } else {
             pacMan.move(Direction.NONE);
         }
-        notifyMovement();
+        try {
+            board.getPowerPellets().get(pacMan.getY()).remove(pacMan.getX());
+            score++;
+        }catch (Exception e){
+            //do nothing
+        }
     }
+
 
     public Direction chooseDirection(GameObject object){
         List<Direction> directionList = new ArrayList<>();
-        if (test(object, Direction.UP)) {
+        if (checkWall(object, Direction.UP)) {
             directionList.add(Direction.UP);
         }
-        if (test(object, Direction.DOWN)) {
+        if (checkWall(object, Direction.DOWN)) {
             directionList.add(Direction.DOWN);
         }
-        if (test(object, Direction.LEFT)) {
+        if (checkWall(object, Direction.LEFT)) {
             directionList.add(Direction.LEFT);
         }
-        if (test(object, Direction.RIGHT)) {
+        if (checkWall(object, Direction.RIGHT)) {
             directionList.add(Direction.RIGHT);
         }
         int ch = ThreadLocalRandom.current().nextInt(0, directionList.size());
@@ -90,12 +93,11 @@ public class PacManModel implements AutoCloseable {
     public void moveGhost(Ghost ghost, Direction direction) {
         if(board.getMap().get(ghost.getY()).charAt(ghost.getX()) == 'n'){
             ghost.move(chooseDirection(ghost));
-        } else if (test(ghost, direction)) {
+        } else if (checkWall(ghost, direction)) {
             ghost.move(direction);
         } else {
             ghost.move(chooseDirection(ghost));
         }
-        notifyMovement();
     }
 
     public void update() {
@@ -107,6 +109,7 @@ public class PacManModel implements AutoCloseable {
                 moveGhost(ghost, ghost.getDirection());
             }
         }
+        notifyMovement();
     }
     private void notifyMovement(){
         if(null != listener){
@@ -115,9 +118,6 @@ public class PacManModel implements AutoCloseable {
     }
     public synchronized void setListener(ModelListener listener) {
         this.listener = listener;
-    }
-    public State getState() {
-        return state;
     }
     public long getTimeout() {
         return timeout;

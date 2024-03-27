@@ -5,25 +5,11 @@ import ru.nsu.koshevoi.model.PacManModel;
 
 import java.awt.event.*;
 
-public class SwingController extends WindowAdapter implements KeyListener {
+public class SwingController extends KeyAdapter{
     private final PacManModel model;
 
     public SwingController(PacManModel model){
         this.model = model;
-    }
-    @Override
-    public void windowClosing(WindowEvent e) {
-        try {
-            model.close();
-        } catch (InterruptedException ex) {
-            throw new RuntimeException(ex);
-        }
-        e.getWindow().setVisible(false);
-        e.getWindow().dispose();
-    }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
     }
 
     @Override
@@ -42,10 +28,5 @@ public class SwingController extends WindowAdapter implements KeyListener {
                 model.setNewPacManDirection(Direction.RIGHT);
                 break;
         }
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-
     }
 }
