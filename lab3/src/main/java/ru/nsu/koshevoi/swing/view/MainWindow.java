@@ -1,9 +1,12 @@
 package ru.nsu.koshevoi.swing.view;
 
 import ru.nsu.koshevoi.model.*;
+import ru.nsu.koshevoi.swing.controller.SwingController;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -12,11 +15,12 @@ public class MainWindow extends JFrame implements ModelListener {
     private final PacManModel model;
     private final static int SIZE = 20;
     private final BoardPanel boardPanel;
+    private SwingController controller;
 
-    public MainWindow(PacManModel model) {
+    public MainWindow(PacManModel model, SwingController controller) {
         this.model = model;
         this.boardPanel = new BoardPanel(model.getBoard());
-
+        this.controller = controller;
         initComponents();
         model.setListener(this);
         onModelChanged();
@@ -47,7 +51,42 @@ public class MainWindow extends JFrame implements ModelListener {
 
     @Override
     public void onModelChanged() {
-        SwingUtilities.invokeLater(boardPanel::repaint);
+         switch (model.getState()){
+             case ALIVE -> SwingUtilities.invokeLater(boardPanel::repaint);
+             case DEAD -> displayDidNotEnterRecords();
+             case WIN -> displayWin();
+             case WAIT -> System.out.println("WAIT");
+         }
+    }
+
+    private void displayDidNotEnterRecords() {
+        JLabel label = new JLabel("Did not enter records");
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setFont(new Font("Serif", Font.BOLD, 18));
+        label.setOpaque(true);
+        label.setBackground(Color.RED);
+        label.setPreferredSize(new Dimension(400, 100));
+        JButton button = new JButton("restart");
+        button.addActionListener(controller);
+        button.setHorizontalAlignment(SwingConstants.CENTER);
+        this.getContentPane().removeAll();
+        this.getContentPane().add(button, BorderLayout.CENTER);
+        this.getContentPane().add(label, BorderLayout.CENTER);
+        this.getContentPane().revalidate();
+        this.getContentPane().repaint();
+    }
+
+    private void displayWin() {
+        JLabel label = new JLabel("WIN! Your time: " + model.getTime()/60);
+        label.setHorizontalAlignment(SwingConstants.CENTER);
+        label.setFont(new Font("Serif", Font.BOLD, 18));
+        label.setOpaque(true);
+        label.setBackground(Color.GREEN);
+        label.setPreferredSize(new Dimension(400, 100));
+        this.getContentPane().removeAll();
+        this.getContentPane().add(label, BorderLayout.CENTER);
+        this.getContentPane().revalidate();
+        this.getContentPane().repaint();
     }
 
     private class BoardPanel extends JPanel {
@@ -56,7 +95,7 @@ public class MainWindow extends JFrame implements ModelListener {
 
         public BoardPanel(Board board) {
             this.board = board;
-            setPreferredSize(new Dimension(board.getWidth() * SIZE, board.getHeight() * SIZE));
+            setPreferredSize(new Dimension(board.getWidth() * SIZE, (board.getHeight() + 1)* SIZE));
             setBackground(Color.WHITE);
         }
 
@@ -69,6 +108,7 @@ public class MainWindow extends JFrame implements ModelListener {
                 g.setColor(Color.BLACK);
                 g.fillRect(wall.getX() * SIZE, wall.getY() * SIZE, SIZE, SIZE);
             }
+            g.fillRect(0,HEIGHT*SIZE+360,SIZE*SIZE+180, SIZE);
 
             Map<Integer, Map<Integer, Boolean>> powerPellets = board.getPowerPellets();
             for (Map.Entry<Integer, Map<Integer, Boolean>> pellet : powerPellets.entrySet()) {
@@ -87,6 +127,10 @@ public class MainWindow extends JFrame implements ModelListener {
                 g.setColor(Color.RED);
                 g.fillOval(ghost.getX() * SIZE, ghost.getY() * SIZE, SIZE, SIZE);
             }
+            g.setColor(Color.red);
+            g.setFont(new Font("Arial", Font.BOLD, 14));
+            String string = "Power pellets: " + model.getScore();
+            g.drawString(string, 20, SIZE*SIZE + 15);
 
         }
     }

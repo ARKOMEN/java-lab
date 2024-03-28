@@ -11,7 +11,7 @@ public class SwingMain {
         PacManModel model = new PacManModel();
         SwingUtilities.invokeLater(() -> {
             SwingController controller = new SwingController(model);
-            MainWindow mainWindow = new MainWindow(model);
+            MainWindow mainWindow = new MainWindow(model, controller);
             mainWindow.setVisible(true);
             mainWindow.addKeyListener(controller);
         });

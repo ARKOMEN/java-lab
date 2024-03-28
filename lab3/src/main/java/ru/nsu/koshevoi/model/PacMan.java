@@ -50,10 +50,4 @@ public class PacMan implements GameObject{
     public Direction getDirection() {
         return direction;
     }
-
-    public void changeDirection(Direction direction) {
-        if (this.direction.opposite() != direction) {
-            this.direction = direction;
-        }
-    }
 }

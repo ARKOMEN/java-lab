@@ -6,8 +6,4 @@ public enum Direction {
     DOWN,
     LEFT,
     RIGHT;
-
-    public Direction opposite() {
-        return NONE;
-    }
 }

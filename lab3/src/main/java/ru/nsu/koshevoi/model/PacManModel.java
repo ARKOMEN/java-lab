@@ -12,11 +12,14 @@ public class PacManModel implements AutoCloseable {
     private final long timeout = 145;
     private Thread thread;
     private ModelListener listener;
+    private boolean flag = true;
     private int score = 0;
     private Direction newPacManDirection;
     private PacMan pacMan;
     private List<Ghost> ghosts;
     private Board board;
+    private State state = State.ALIVE;
+    private long start, finish, time;
     public PacManModel() throws IOException {
         thread = new Ticker(this);
         thread.start();
@@ -34,6 +37,7 @@ public class PacManModel implements AutoCloseable {
         ghosts.add(new Ghost(WIDTH - 2, HEIGHT - 2, WIDTH, HEIGHT));
         pacMan = new PacMan(WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);
         newPacManDirection = pacMan.getDirection();
+        start = System.currentTimeMillis();
         notifyMovement();
     }
 
@@ -65,9 +69,10 @@ public class PacManModel implements AutoCloseable {
             pacMan.move(Direction.NONE);
         }
         try {
-            board.getPowerPellets().get(pacMan.getY()).remove(pacMan.getX());
-            score++;
-        }catch (Exception e){
+            if(board.getPowerPellets().get(pacMan.getY()).remove(pacMan.getX())){
+                score++;
+            }
+        }catch (Exception e) {
             //do nothing
         }
     }
@@ -101,15 +106,37 @@ public class PacManModel implements AutoCloseable {
     }
 
     public void update() {
-        if(this.pacMan != null) {
-            MovePacMan(newPacManDirection);
-        }
-        if(this.ghosts != null){
-            for (Ghost ghost : ghosts) {
-                moveGhost(ghost, ghost.getDirection());
+        if(state == State.ALIVE) {
+            if (this.pacMan != null) {
+                MovePacMan(newPacManDirection);
             }
+            if (score == 227 && flag) {
+                finish = System.currentTimeMillis();
+                time = finish - start;
+                state = State.WIN;
+                flag = false;
+            }
+            if (this.ghosts != null) {
+                for (Ghost ghost : ghosts) {
+                    if (ghost.isColliding(pacMan.getX(), pacMan.getY())) {
+                        state = State.DEAD;
+                    }
+                }
+            }
+            if (this.ghosts != null) {
+                for (Ghost ghost : ghosts) {
+                    moveGhost(ghost, ghost.getDirection());
+                }
+            }
+            if (this.ghosts != null) {
+                for (Ghost ghost : ghosts) {
+                    if (ghost.isColliding(pacMan.getX(), pacMan.getY())) {
+                        state = State.DEAD;
+                    }
+                }
+            }
+            notifyMovement();
         }
-        notifyMovement();
     }
     private void notifyMovement(){
         if(null != listener){
@@ -129,5 +156,12 @@ public class PacManModel implements AutoCloseable {
     public void close() throws InterruptedException {
         thread.interrupt();
         thread.join();
+    }
+    public long getTime(){return time;}
+    public State getState() {
+        return state;
+    }
+    public int getScore() {
+        return score;
     }
 }

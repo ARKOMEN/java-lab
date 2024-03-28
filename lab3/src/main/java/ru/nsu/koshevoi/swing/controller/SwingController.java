@@ -5,7 +5,7 @@ import ru.nsu.koshevoi.model.PacManModel;
 
 import java.awt.event.*;
 
-public class SwingController extends KeyAdapter{
+public class SwingController extends KeyAdapter implements ActionListener{
     private final PacManModel model;
 
     public SwingController(PacManModel model){
@@ -28,5 +28,10 @@ public class SwingController extends KeyAdapter{
                 model.setNewPacManDirection(Direction.RIGHT);
                 break;
         }
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        System.out.println("restart");
     }
 }
