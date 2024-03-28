@@ -34,10 +34,10 @@ public class MainWindow extends JFrame implements ModelListener {
             public void windowClosing(java.awt.event.WindowEvent e) {
                 try {
                     model.close();
+                    System.exit(0);
                 } catch (InterruptedException ex) {
                     throw new RuntimeException(ex);
                 }
-                System.exit(0);
             }
         });
 

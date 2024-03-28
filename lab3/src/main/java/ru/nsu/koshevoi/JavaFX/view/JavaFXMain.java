@@ -8,6 +8,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import ru.nsu.koshevoi.JavaFX.controller.JavaFXController;
 import ru.nsu.koshevoi.model.*;
 
@@ -55,7 +56,14 @@ public class JavaFXMain extends Application implements ModelListener {
         ghostImage = new Image(inputStream);
         inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/d.png");
         dotImage = new Image(inputStream);
-
+        primaryStage.setOnCloseRequest((WindowEvent event) -> {
+            try {
+                model.close();
+                System.exit(0);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        });
         ArrayList<Wall> walls = (ArrayList<Wall>) board.getWalls();
         for (Wall wall : walls) {
             loadImage(root, wallImage);
