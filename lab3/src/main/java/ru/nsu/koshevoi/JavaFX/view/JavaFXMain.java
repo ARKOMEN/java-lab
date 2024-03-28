@@ -2,10 +2,7 @@ package ru.nsu.koshevoi.JavaFX.view;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -16,7 +13,6 @@ import java.io.IOException;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
-import javax.swing.*;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -113,14 +109,14 @@ public class JavaFXMain extends Application implements ModelListener {
                 }
             }
             if(flag){
-                text = new Text("SCORE:" + model.getScore());
+                text = new Text("SCORE:" + model.getPacMan().getScore());
                 text.setTranslateX(-270);
                 text.setTranslateY(200);
                 root.getChildren().add(text);
                 flag = false;
             }
             if(model.getState() == State.ALIVE) {
-                text.setText("SCORE:" + model.getScore());
+                text.setText("SCORE:" + model.getPacMan().getScore());
             }else if(model.getState() == State.DEAD){
                 text.setText("GAME OVER");
                 root.getChildren().removeAll();

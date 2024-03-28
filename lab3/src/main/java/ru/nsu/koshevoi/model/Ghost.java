@@ -1,21 +1,27 @@
 package ru.nsu.koshevoi.model;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
+
 public class Ghost implements GameObject{
     private int x;
     private int y;
-
+    private Board board;
     private Direction direction;
     private final int WIDTH;
     private final int HEIGHT;
-    public Ghost(int x, int y, int WIDTH, int HEIGHT) {
+    private PacManModel model;
+    public Ghost(int x, int y, int WIDTH, int HEIGHT, Board board, PacManModel model) {
+        this.model = model;
+        this.board = board;
         this.x = x;
         this.y = y;
         this.HEIGHT = HEIGHT;
         this.WIDTH = WIDTH;
         this.direction = Direction.RIGHT;
     }
-    @Override
-    public void move(Direction direction) {
+    public void tryMove(Direction direction) {
         this.direction = direction;
         switch (direction) {
             case UP:
@@ -38,37 +44,46 @@ public class Ghost implements GameObject{
                 break;
         }
     }
-
-    public void update() {
-        switch (direction) {
-            case UP:
-                if(y - 2 >= 0)
-                    y -= 2;
-                else{
-                    direction = Direction.DOWN;
-                }
-                break;
-            case DOWN:
-                if(y + 2 < HEIGHT * 20)
-                    y += 2;
-                else{
-                    direction = Direction.UP;
-                }
-                break;
-            case LEFT:
-                if(x - 2 >= 0)
-                    x -= 2;
-                else{
-                    direction = Direction.RIGHT;
-                }
-                break;
-            case RIGHT:
-                if(x + 2 < WIDTH * 20)
-                    x += 2;
-                else{
-                    direction = Direction.LEFT;
-                }
-                break;
+    private boolean checkWall(Direction direction) {
+        return switch (direction) {
+            case UP -> board.getMap().get(y - 1).charAt(x) != '1';
+            case DOWN -> board.getMap().get(y + 1).charAt(x) != '1';
+            case RIGHT -> board.getMap().get(y).charAt(x + 1) != '1';
+            case LEFT -> board.getMap().get(y).charAt(x - 1) != '1';
+            default -> false;
+        };
+    }
+    public Direction chooseDirection(){
+        List<Direction> directionList = new ArrayList<>();
+        if (checkWall(Direction.UP)) {
+            directionList.add(Direction.UP);
+        }
+        if (checkWall(Direction.DOWN)) {
+            directionList.add(Direction.DOWN);
+        }
+        if (checkWall(Direction.LEFT)) {
+            directionList.add(Direction.LEFT);
+        }
+        if (checkWall(Direction.RIGHT)) {
+            directionList.add(Direction.RIGHT);
+        }
+        int ch = ThreadLocalRandom.current().nextInt(0, directionList.size());
+        return directionList.get(ch);
+    }
+    @Override
+    public void move(Direction direction){
+        if(isColliding(model.getPacMan().getX(), model.getPacMan().getY())){
+            model.setState(State.DEAD);
+        }
+        if(board.getMap().get(y).charAt(x) == 'n'){
+            tryMove(chooseDirection());
+        } else if (checkWall(direction)) {
+            tryMove(direction);
+        } else {
+            tryMove(chooseDirection());
+        }
+        if(isColliding(model.getPacMan().getX(), model.getPacMan().getY())){
+            model.setState(State.DEAD);
         }
     }
     public boolean isColliding(int x, int y) {

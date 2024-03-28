@@ -55,22 +55,18 @@ public class MainWindow extends JFrame implements ModelListener {
              case ALIVE -> SwingUtilities.invokeLater(boardPanel::repaint);
              case DEAD -> displayDidNotEnterRecords();
              case WIN -> displayWin();
-             case WAIT -> System.out.println("WAIT");
+             //case WAIT -> System.out.println("WAIT");
          }
     }
 
     private void displayDidNotEnterRecords() {
-        JLabel label = new JLabel("Did not enter records");
+        JLabel label = new JLabel("GAME OVER");
         label.setHorizontalAlignment(SwingConstants.CENTER);
         label.setFont(new Font("Serif", Font.BOLD, 18));
         label.setOpaque(true);
         label.setBackground(Color.RED);
         label.setPreferredSize(new Dimension(400, 100));
-        JButton button = new JButton("restart");
-        button.addActionListener(controller);
-        button.setHorizontalAlignment(SwingConstants.CENTER);
         this.getContentPane().removeAll();
-        this.getContentPane().add(button, BorderLayout.CENTER);
         this.getContentPane().add(label, BorderLayout.CENTER);
         this.getContentPane().revalidate();
         this.getContentPane().repaint();
@@ -129,7 +125,7 @@ public class MainWindow extends JFrame implements ModelListener {
             }
             g.setColor(Color.red);
             g.setFont(new Font("Arial", Font.BOLD, 14));
-            String string = "Power pellets: " + model.getScore();
+            String string = "Power pellets: " + model.getPacMan().getScore();
             g.drawString(string, 20, SIZE*SIZE + 15);
 
         }

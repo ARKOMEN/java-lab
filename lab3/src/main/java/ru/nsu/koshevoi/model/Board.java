@@ -9,6 +9,7 @@ public class Board {
     private final List<Wall> walls;
     private final Map<Integer, Map<Integer, Boolean>> powerPellets;
     private List<String> map;
+    private int num = 0;
     public Board() throws IOException {
         map = new ArrayList<>();
         this.height = 0;
@@ -28,6 +29,7 @@ public class Board {
                         Wall wall = new Wall(i, this.height, 1, 1);
                         addWall(wall);
                     } else if (walls.charAt(i) == '0') {
+                        num++;
                         powerPelletHashMap.put(i, true);
                     }
                 }
@@ -37,6 +39,7 @@ public class Board {
             assert walls != null;
             this.width = walls.length();
         }
+
     }
 
     public void addWall(Wall wall) {
@@ -54,7 +57,7 @@ public class Board {
     public int getHeight(){
         return this.height;
     }
-
+    public int getNum(){return this.num;}
     public List<String> getMap(){
         return this.map;
     }
