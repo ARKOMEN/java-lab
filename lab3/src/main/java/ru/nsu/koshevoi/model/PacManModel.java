@@ -31,8 +31,8 @@ public class PacManModel implements AutoCloseable {
         WIDTH = board.getWidth();
         HEIGHT = board.getHeight();
         ghosts = new ArrayList<>();
-        ghosts.add(new Ghost(0, 1, WIDTH, HEIGHT));
-        ghosts.add(new Ghost(0, HEIGHT - 2, WIDTH, HEIGHT));
+        ghosts.add(new Ghost(1, 1, WIDTH, HEIGHT));
+        ghosts.add(new Ghost(1, HEIGHT - 2, WIDTH, HEIGHT));
         ghosts.add(new Ghost(WIDTH - 2, 1, WIDTH, HEIGHT));
         ghosts.add(new Ghost(WIDTH - 2, HEIGHT - 2, WIDTH, HEIGHT));
         pacMan = new PacMan(WIDTH/2, HEIGHT/2, WIDTH, HEIGHT);

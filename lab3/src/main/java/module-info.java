@@ -13,5 +13,6 @@ module ru.nsu.koshevoi.lab3 {
     requires java.desktop;
 
     opens ru.nsu.koshevoi.lab3 to javafx.fxml;
-    exports ru.nsu.koshevoi;
+    exports ru.nsu.koshevoi.JavaFX.view;
+    exports ru.nsu.koshevoi.JavaFX.controller;
 }

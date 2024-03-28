@@ -1,14 +1,34 @@
-package ru.nsu.koshevoi;
+package ru.nsu.koshevoi.JavaFX.controller;
 
-import javafx.fxml.FXML;
-import javafx.scene.control.Label;
+import javafx.event.EventHandler;
 
-public class HelloController {
-    @FXML
-    private Label welcomeText;
+import ru.nsu.koshevoi.model.Direction;
+import ru.nsu.koshevoi.model.PacManModel;
+import javafx.scene.input.KeyEvent;
 
-    @FXML
-    protected void onHelloButtonClick() {
-        welcomeText.setText("Welcome to JavaFX Application!");
+public class JavaFXController implements EventHandler<KeyEvent> {
+
+    private final PacManModel model;
+
+    public JavaFXController(PacManModel model) {
+        this.model = model;
+    }
+
+    @Override
+    public void handle(KeyEvent keyEvent) {
+        switch (keyEvent.getCode()) {
+            case UP:
+                model.setNewPacManDirection(Direction.UP);
+                break;
+            case DOWN:
+                model.setNewPacManDirection(Direction.DOWN);
+                break;
+            case LEFT:
+                model.setNewPacManDirection(Direction.LEFT);
+                break;
+            case RIGHT:
+                model.setNewPacManDirection(Direction.RIGHT);
+                break;
+        }
     }
 }
