@@ -4,5 +4,6 @@ public enum State {
     ALIVE,
     DEAD,
     WIN,
+    WIN_LEVEL,
     WAIT
 }

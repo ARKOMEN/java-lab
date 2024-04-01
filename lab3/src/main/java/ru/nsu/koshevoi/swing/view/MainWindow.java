@@ -87,7 +87,7 @@ public class MainWindow extends JFrame implements ModelListener {
 
     private class BoardPanel extends JPanel {
 
-        private final Board board;
+        private Board board;
 
         public BoardPanel(Board board) {
             this.board = board;
@@ -105,8 +105,9 @@ public class MainWindow extends JFrame implements ModelListener {
                 g.fillRect(wall.getX() * SIZE, wall.getY() * SIZE, SIZE, SIZE);
             }
             g.fillRect(0,HEIGHT*SIZE+360,SIZE*SIZE+180, SIZE);
-
+            this.board = model.getBoard();
             Map<Integer, Map<Integer, Boolean>> powerPellets = board.getPowerPellets();
+            System.out.println(powerPellets.get(1).size());
             for (Map.Entry<Integer, Map<Integer, Boolean>> pellet : powerPellets.entrySet()) {
                 for(Map.Entry<Integer, Boolean> pel : pellet.getValue().entrySet()){
                     g.setColor(Color.BLACK);

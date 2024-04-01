@@ -1,5 +1,7 @@
 package ru.nsu.koshevoi.model;
 
+import java.io.IOException;
+
 public class Ticker extends Thread {
 
     private final PacManModel model;
@@ -16,6 +18,8 @@ public class Ticker extends Thread {
                 model.update();
             } catch (InterruptedException e) {
                 break;
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
         }
     }

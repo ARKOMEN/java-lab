@@ -12,7 +12,6 @@ public class PacManModel implements AutoCloseable {
     private final long timeout = 145;
     private Thread thread;
     private ModelListener listener;
-    private boolean flag = true;
     private Direction newPacManDirection;
     private PacMan pacMan;
     private List<Ghost> ghosts;
@@ -21,6 +20,7 @@ public class PacManModel implements AutoCloseable {
     private long start;
     private long finish;
     private long time;
+    private Levels level = Levels.FIRST;
     public PacManModel() throws IOException {
         thread = new Ticker(this);
         thread.start();
@@ -32,10 +32,18 @@ public class PacManModel implements AutoCloseable {
         WIDTH = board.getWidth();
         HEIGHT = board.getHeight();
         ghosts = new ArrayList<>();
-        ghosts.add(new Ghost(1, 1, WIDTH, HEIGHT, board, this));
-        ghosts.add(new Ghost(1, HEIGHT - 2, WIDTH, HEIGHT, board, this));
-        ghosts.add(new Ghost(WIDTH - 2, 1, WIDTH, HEIGHT, board, this));
-        ghosts.add(new Ghost(WIDTH - 2, HEIGHT - 2, WIDTH, HEIGHT, board, this));
+        if(level.getValue() >= 1) {
+            ghosts.add(new Ghost(1, 1, WIDTH, HEIGHT, board, this));
+        }
+        if(level.getValue() >= 2) {
+            ghosts.add(new Ghost(1, HEIGHT - 2, WIDTH, HEIGHT, board, this));
+        }
+        if(level.getValue() >= 3) {
+            ghosts.add(new Ghost(WIDTH - 2, 1, WIDTH, HEIGHT, board, this));
+        }
+        if(level.getValue() == 4) {
+            ghosts.add(new Ghost(WIDTH - 2, HEIGHT - 2, WIDTH, HEIGHT, board, this));
+        }
         pacMan = new PacMan(WIDTH/2, HEIGHT/2, WIDTH, HEIGHT, board, this);
         newPacManDirection = pacMan.getDirection();
         start = System.currentTimeMillis();
@@ -52,7 +60,7 @@ public class PacManModel implements AutoCloseable {
         return board;
     }
 
-    public void update() {
+    public void update() throws IOException {
         if(state == State.ALIVE) {
             if (this.pacMan != null) {
                 pacMan.move(newPacManDirection);
@@ -63,6 +71,16 @@ public class PacManModel implements AutoCloseable {
                 }
             }
             notifyMovement();
+        }
+        if(state == State.WIN_LEVEL){
+            if(level == Levels.FOURTH){
+                state = State.WIN;
+            }
+            else{
+                level.setValue(level.getValue() + 1);
+                generate();
+                state = State.ALIVE;
+            }
         }
     }
     private void notifyMovement(){
@@ -94,5 +112,7 @@ public class PacManModel implements AutoCloseable {
     public void setTime(long time) {
         this.time = start - time;
     }
-
+    public Levels getLevel() {
+        return level;
+    }
 }

@@ -74,7 +74,7 @@ public class PacMan implements GameObject{
         if(score == board.getNum()){
             long finish = System.currentTimeMillis();
             model.setTime(finish);
-            model.setState(State.WIN);
+            model.setState(State.WIN_LEVEL);
         }
     }
     @Override
