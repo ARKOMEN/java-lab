@@ -15,6 +15,7 @@ public class PacManModel implements AutoCloseable {
     private Direction newPacManDirection;
     private PacMan pacMan;
     private List<Ghost> ghosts;
+    private List<PowerPellets> powerPellets;
     private Board board;
     private State state = State.ALIVE;
     private long start;
@@ -31,6 +32,7 @@ public class PacManModel implements AutoCloseable {
         board = new Board();
         WIDTH = board.getWidth();
         HEIGHT = board.getHeight();
+        powerPellets = board.getPowerPellets();
         ghosts = new ArrayList<>();
         if(level.getValue() >= 1) {
             ghosts.add(new Ghost(1, 1, WIDTH, HEIGHT, board, this));
@@ -46,6 +48,7 @@ public class PacManModel implements AutoCloseable {
         }
         pacMan = new PacMan(WIDTH/2, HEIGHT/2, WIDTH, HEIGHT, board, this);
         newPacManDirection = pacMan.getDirection();
+
         start = System.currentTimeMillis();
         notifyMovement();
     }
@@ -114,5 +117,8 @@ public class PacManModel implements AutoCloseable {
     }
     public Levels getLevel() {
         return level;
+    }
+    public List<PowerPellets> getPowerPellets() {
+        return powerPellets;
     }
 }

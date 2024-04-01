@@ -70,11 +70,9 @@ public class JavaFXMain extends Application implements ModelListener {
         for(Ghost ghost : ghosts){
             loadImage(root, ghostImage);
         }
-        Map<Integer, Map<Integer, Boolean>> powerPellets = board.getPowerPellets();
-        for (Map.Entry<Integer, Map<Integer, Boolean>> pellet : powerPellets.entrySet()) {
-            for(Map.Entry<Integer, Boolean> pel : pellet.getValue().entrySet()){
-                loadImage(root, dotImage);
-            }
+        ArrayList<PowerPellets> powerPellets = (ArrayList<PowerPellets>) model.getPowerPellets();
+        for(PowerPellets pellets : powerPellets){
+            loadImage(root, dotImage);
         }
         onModelChanged();
         primaryStage.show();
@@ -100,13 +98,10 @@ public class JavaFXMain extends Application implements ModelListener {
                 root.getChildren().get(i).setTranslateX(model.getGhosts().get(i - finish).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
                 root.getChildren().get(i).setTranslateY(model.getGhosts().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
             }
-            Map<Integer, Map<Integer, Boolean>> powerPellets = board.getPowerPellets();
-            for (Map.Entry<Integer, Map<Integer, Boolean>> pellet : powerPellets.entrySet()) {
-                for(Map.Entry<Integer, Boolean> pel : pellet.getValue().entrySet()){
-                    root.getChildren().get(i).setTranslateX(pel.getKey()*SIZE- (double) board.getWidth() / 2 * SIZE);
-                    root.getChildren().get(i).setTranslateY(pellet.getKey()*SIZE - (double) board.getHeight() / 2 * SIZE);
-                    i++;
-                }
+            finish = i;
+            for (; i < finish + model.getBoard().getNum(); i++) {
+                root.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i - finish).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
+                root.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
             }
             if(flag){
                 text = new Text("SCORE:" + model.getPacMan().getScore());

@@ -53,12 +53,12 @@ public class PacMan implements GameObject{
         }
     }
     private void checkPellet(){
-        try {
-            if(board.getPowerPellets().get(y).remove(x)){
+        for(int i = 0; i < model.getBoard().getNum(); i++){
+            if(model.getPowerPellets().get(i).getX() == x &&
+            model.getPowerPellets().get(i).getY() == y){
                 score++;
+                model.getPowerPellets().remove(i);
             }
-        }catch (Exception e) {
-            //do nothing
         }
     }
     @Override

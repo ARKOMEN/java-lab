@@ -105,14 +105,11 @@ public class MainWindow extends JFrame implements ModelListener {
                 g.fillRect(wall.getX() * SIZE, wall.getY() * SIZE, SIZE, SIZE);
             }
             g.fillRect(0,HEIGHT*SIZE+360,SIZE*SIZE+180, SIZE);
-            this.board = model.getBoard();
-            Map<Integer, Map<Integer, Boolean>> powerPellets = board.getPowerPellets();
-            System.out.println(powerPellets.get(1).size());
-            for (Map.Entry<Integer, Map<Integer, Boolean>> pellet : powerPellets.entrySet()) {
-                for(Map.Entry<Integer, Boolean> pel : pellet.getValue().entrySet()){
-                    g.setColor(Color.BLACK);
-                    g.fillOval(pel.getKey() * SIZE + 7, pellet.getKey() * SIZE + 6, 5, 5);
-                }
+
+            ArrayList<PowerPellets> powerPellets = (ArrayList<PowerPellets>) model.getPowerPellets();
+            for (PowerPellets pellets : powerPellets) {
+                g.setColor(Color.BLACK);
+                g.fillOval(pellets.getX() * SIZE + 7, pellets.getY() * SIZE + 6, 5, 5);
             }
 
             PacMan pacMan = model.getPacMan();
