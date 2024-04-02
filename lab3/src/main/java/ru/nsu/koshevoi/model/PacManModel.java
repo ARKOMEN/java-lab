@@ -1,15 +1,14 @@
 package ru.nsu.koshevoi.model;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 
 public class PacManModel implements AutoCloseable {
     private static int WIDTH;
     private static int HEIGHT;
-    private final long timeout = 145;
+    private long timeout = 145;
     private Thread thread;
     private ModelListener listener;
     private Direction newPacManDirection;
@@ -21,7 +20,7 @@ public class PacManModel implements AutoCloseable {
     private long start;
     private long finish;
     private long time;
-    private Levels level = Levels.FIRST;
+    private Levels level = new Levels(1);
     public PacManModel() throws IOException {
         thread = new Ticker(this);
         thread.start();
@@ -73,18 +72,43 @@ public class PacManModel implements AutoCloseable {
                     ghost.move(ghost.getDirection());
                 }
             }
-            notifyMovement();
-        }
-        if(state == State.WIN_LEVEL){
-            if(level == Levels.FOURTH){
+        }else if(state == State.WIN_LEVEL){
+            if(level.getValue() == 4){
+                level.setTime((System.currentTimeMillis()-start)/1000);
                 state = State.WIN;
             }
             else{
                 level.setValue(level.getValue() + 1);
+                level.setTime((System.currentTimeMillis()-start)/1000);
+                start = System.currentTimeMillis();
                 generate();
                 state = State.ALIVE;
             }
         }
+        notifyMovement();
+    }
+    public void updateTable(){
+        try(FileWriter writer = new FileWriter("table.csv", true)){
+            writer.append(pacMan.getUserName() + ',' + level.getTime().get(0) + ',' + level.getTime().get(1)
+                    + ',' + level.getTime().get(2) + ',' + level.getTime().get(3) + '\n');
+            writer.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+    public Map<String, List<String>> parser(){
+        Map<String, List<String>> table = new HashMap<>();
+        try (BufferedReader br = new BufferedReader(new FileReader("table.csv"))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                List<String> tmp = new ArrayList<String>(List.of(line.split(",")));
+                table.put(tmp.getFirst(), tmp.subList(1, tmp.size()));
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return table;
     }
     private void notifyMovement(){
         if(null != listener){
@@ -120,5 +144,8 @@ public class PacManModel implements AutoCloseable {
     }
     public List<PowerPellets> getPowerPellets() {
         return powerPellets;
+    }
+    public void setTimeout(long timeout) {
+        this.timeout = timeout;
     }
 }

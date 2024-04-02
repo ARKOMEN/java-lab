@@ -99,7 +99,7 @@ public class JavaFXMain extends Application implements ModelListener {
                 root.getChildren().get(i).setTranslateY(model.getGhosts().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
             }
             finish = i;
-            for (; i < finish + model.getBoard().getNum(); i++) {
+            for (; i < finish + model.getBoard().getNum() - model.getPacMan().getScore(); i++) {
                 root.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i - finish).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
                 root.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
             }

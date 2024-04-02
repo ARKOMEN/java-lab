@@ -9,6 +9,7 @@ public class PacMan implements GameObject{
     private Board board;
     private PacManModel model;
     private int score = 0;
+    private String userName;
 
     public PacMan(int x, int y, int WIDTH, int HEIGHT, Board board, PacManModel model) {
         this.model = model;
@@ -53,7 +54,7 @@ public class PacMan implements GameObject{
         }
     }
     private void checkPellet(){
-        for(int i = 0; i < model.getBoard().getNum(); i++){
+        for(int i = 0; i < model.getBoard().getNum() - score; i++){
             if(model.getPowerPellets().get(i).getX() == x &&
             model.getPowerPellets().get(i).getY() == y){
                 score++;
@@ -71,7 +72,7 @@ public class PacMan implements GameObject{
             tryMove(Direction.NONE);
         }
         checkPellet();
-        if(score == board.getNum()){
+        if(score == 1){
             long finish = System.currentTimeMillis();
             model.setTime(finish);
             model.setState(State.WIN_LEVEL);
@@ -92,5 +93,11 @@ public class PacMan implements GameObject{
 
     public int getScore() {
         return score;
+    }
+    public void setUserName(String name){
+        this.userName = name;
+    }
+    public String getUserName() {
+        return userName;
     }
 }

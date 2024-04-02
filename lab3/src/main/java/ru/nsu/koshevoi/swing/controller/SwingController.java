@@ -2,13 +2,21 @@ package ru.nsu.koshevoi.swing.controller;
 
 import ru.nsu.koshevoi.model.Direction;
 import ru.nsu.koshevoi.model.PacManModel;
+import ru.nsu.koshevoi.model.State;
 
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
 import java.awt.event.*;
+import java.io.IOException;
 
 public class SwingController extends KeyAdapter implements ActionListener{
+    public static final String SUBMIT_ANSWER = "submitAnswer";
     private final PacManModel model;
+    private final Document inputModel;
 
     public SwingController(PacManModel model){
+        inputModel = new PlainDocument();
         this.model = model;
     }
 
@@ -32,6 +40,17 @@ public class SwingController extends KeyAdapter implements ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        System.out.println("restart");
+        try {
+            model.getPacMan().setUserName(inputModel.getText(0, inputModel.getLength()));
+            model.setTimeout(145);
+            model.updateTable();
+            model.setState(State.TABLE);
+        } catch (BadLocationException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+
+    public Document getInputModel() {
+        return inputModel;
     }
 }

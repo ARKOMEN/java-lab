@@ -4,14 +4,30 @@ import ru.nsu.koshevoi.model.*;
 import ru.nsu.koshevoi.swing.controller.SwingController;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
 import java.util.Map;
 
-public class MainWindow extends JFrame implements ModelListener {
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.border.EmptyBorder;
+import javax.swing.text.Document;
+import javax.swing.text.PlainDocument;
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.Dimension;
 
+public class MainWindow extends JFrame implements ModelListener {
     private final PacManModel model;
     private final static int SIZE = 20;
     private final BoardPanel boardPanel;
@@ -40,7 +56,6 @@ public class MainWindow extends JFrame implements ModelListener {
                 }
             }
         });
-
         Container contentPane = getContentPane();
         contentPane.setLayout(new BorderLayout());
         contentPane.add(boardPanel, BorderLayout.CENTER);
@@ -51,14 +66,17 @@ public class MainWindow extends JFrame implements ModelListener {
 
     @Override
     public void onModelChanged() {
-         switch (model.getState()){
-             case ALIVE -> SwingUtilities.invokeLater(boardPanel::repaint);
-             case DEAD -> displayDidNotEnterRecords();
-             case WIN -> displayWin();
-             //case WAIT -> System.out.println("WAIT");
-         }
+        switch (model.getState()){
+            case ALIVE -> SwingUtilities.invokeLater(boardPanel::repaint);
+            case DEAD -> displayDidNotEnterRecords();
+            case WIN -> {model.setTimeout(5000);displayWin();}
+            case TABLE -> displayTable();
+        }
     }
 
+    private void displayTable(){
+        model.parser();
+    }
     private void displayDidNotEnterRecords() {
         JLabel label = new JLabel("GAME OVER");
         label.setHorizontalAlignment(SwingConstants.CENTER);
@@ -73,17 +91,33 @@ public class MainWindow extends JFrame implements ModelListener {
     }
 
     private void displayWin() {
-        JLabel label = new JLabel("WIN! Your time: " + model.getTime()/60);
-        label.setHorizontalAlignment(SwingConstants.CENTER);
-        label.setFont(new Font("Serif", Font.BOLD, 18));
-        label.setOpaque(true);
-        label.setBackground(Color.GREEN);
-        label.setPreferredSize(new Dimension(400, 100));
+        JPanel panel = new JPanel();
+        JLabel label1 = new JLabel("WIN!");
+        label1.setHorizontalAlignment(SwingConstants.CENTER);
+        label1.setFont(new Font("Serif", Font.BOLD, 18));
+        label1.setOpaque(true);
+        label1.setPreferredSize(new Dimension(400, 100));
+        JLabel label2 = new JLabel("Enter your name");
+        label2.setHorizontalAlignment(SwingConstants.CENTER);
+        label2.setFont(new Font("Serif", Font.BOLD, 18));
+        label2.setOpaque(true);
+        label2.setPreferredSize(new Dimension(400, 100));
+        JTextField answer = new JTextField(controller.getInputModel(), "", 6);
+        answer.setMinimumSize(answer.getPreferredSize());
+        answer.setMaximumSize(answer.getPreferredSize());
+        JButton button = new JButton("Enter");
+        button.setActionCommand(SwingController.SUBMIT_ANSWER);
+        button.addActionListener(controller);
         this.getContentPane().removeAll();
-        this.getContentPane().add(label, BorderLayout.CENTER);
+        panel.add(label1, BorderLayout.BEFORE_FIRST_LINE);
+        panel.add(label2, BorderLayout.CENTER);
+        panel.add(answer);
+        panel.add(button);
+        this.getContentPane().add(panel);
         this.getContentPane().revalidate();
         this.getContentPane().repaint();
     }
+
 
     private class BoardPanel extends JPanel {
 
@@ -92,13 +126,11 @@ public class MainWindow extends JFrame implements ModelListener {
         public BoardPanel(Board board) {
             this.board = board;
             setPreferredSize(new Dimension(board.getWidth() * SIZE, (board.getHeight() + 1)* SIZE));
-            setBackground(Color.WHITE);
         }
-
         @Override
         protected void paintComponent(Graphics g) {
+            setBackground(Color.WHITE);
             super.paintComponent(g);
-
             ArrayList<Wall> walls = (ArrayList<Wall>) board.getWalls();
             for (Wall wall : walls) {
                 g.setColor(Color.BLACK);
@@ -125,7 +157,6 @@ public class MainWindow extends JFrame implements ModelListener {
             g.setFont(new Font("Arial", Font.BOLD, 14));
             String string = "Power pellets: " + model.getPacMan().getScore();
             g.drawString(string, 20, SIZE*SIZE + 15);
-
         }
     }
 }

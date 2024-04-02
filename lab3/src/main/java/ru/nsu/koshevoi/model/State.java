@@ -5,5 +5,5 @@ public enum State {
     DEAD,
     WIN,
     WIN_LEVEL,
-    WAIT
+    TABLE
 }
