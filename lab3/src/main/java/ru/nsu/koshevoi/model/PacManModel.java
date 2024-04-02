@@ -101,7 +101,7 @@ public class PacManModel implements AutoCloseable {
         try (BufferedReader br = new BufferedReader(new FileReader("table.csv"))) {
             String line;
             while ((line = br.readLine()) != null) {
-                List<String> tmp = new ArrayList<String>(List.of(line.split(",")));
+                List<String> tmp = new ArrayList<>(List.of(line.split(",")));
                 table.put(tmp.getFirst(), tmp.subList(1, tmp.size()));
             }
 

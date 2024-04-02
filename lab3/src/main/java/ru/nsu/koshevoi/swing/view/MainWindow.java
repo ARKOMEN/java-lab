@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import javax.swing.Box;
@@ -26,6 +28,8 @@ import javax.swing.text.PlainDocument;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 public class MainWindow extends JFrame implements ModelListener {
     private final PacManModel model;
@@ -75,7 +79,26 @@ public class MainWindow extends JFrame implements ModelListener {
     }
 
     private void displayTable(){
-        model.parser();
+        Map<String, List<String>> map = model.parser();
+        Object[][] data = new Object[map.size()][5];
+        for(int i = 0; i < map.size(); i++){
+            for(int j = 0; j < 5; j++){
+            }
+        }
+        int i = 0;
+        for(Map.Entry<String, List<String>> entry : map.entrySet()){
+            data[i] = new Object[]{entry.getKey(), entry.getValue().get(0), entry.getValue().get(1), entry.getValue().get(2), entry.getValue().get(3)};
+            i++;
+        }
+        String[] header = {"level number", "first","second","third","fourth"};
+        JTable table = new JTable(data, header);
+        table.setFillsViewportHeight(true);
+        table.setGridColor(Color.cyan);
+        table.setAutoCreateRowSorter(true);
+        this.getContentPane().removeAll();
+        this.getContentPane().add(table);
+        this.getContentPane().revalidate();
+        this.getContentPane().repaint();
     }
     private void displayDidNotEnterRecords() {
         JLabel label = new JLabel("GAME OVER");
