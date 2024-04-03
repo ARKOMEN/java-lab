@@ -5,6 +5,7 @@ import javafx.event.EventHandler;
 import ru.nsu.koshevoi.model.Direction;
 import ru.nsu.koshevoi.model.PacManModel;
 import javafx.scene.input.KeyEvent;
+import ru.nsu.koshevoi.model.State;
 
 public class JavaFXController implements EventHandler<KeyEvent> {
 
@@ -30,5 +31,12 @@ public class JavaFXController implements EventHandler<KeyEvent> {
                 model.setNewPacManDirection(Direction.RIGHT);
                 break;
         }
+    }
+
+    public void enterName(String name) {
+        model.getPacMan().setUserName(name);
+        model.setTimeout(145);
+        model.updateTable();
+        model.setState(State.TABLE);
     }
 }

@@ -1,8 +1,17 @@
 package ru.nsu.koshevoi.JavaFX.view;
 
 import javafx.application.Application;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.event.Event;
+import javafx.event.EventType;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -16,7 +25,10 @@ import javafx.scene.image.ImageView;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import javafx.application.Platform;
 
 
 public class JavaFXMain extends Application implements ModelListener {
@@ -27,19 +39,32 @@ public class JavaFXMain extends Application implements ModelListener {
     Image wallImage;
     Image pacManImage;
     Image dotImage;
-    StackPane root;
+    Pane root;
+    StackPane nodeWalls;
+    StackPane nodeGhosts;
+    StackPane nodePacMan;
+    StackPane nodePowerPellets;
     Stage primaryStage;
     boolean flag = true;
     Text text;
     Text text1;
+    JavaFXController controller;
     @Override
     public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
         model = new PacManModel();
-        JavaFXController controller = new JavaFXController(model);
+        controller = new JavaFXController(model);
         model.setListener(this);
         board = model.getBoard();
         root = new StackPane();
+        nodeWalls = new StackPane();
+        nodeGhosts = new StackPane();
+        nodePacMan = new StackPane();
+        nodePowerPellets = new StackPane();
+        root.getChildren().add(nodeGhosts);
+        root.getChildren().add(nodePacMan);
+        root.getChildren().add(nodePowerPellets);
+        root.getChildren().add(nodeWalls);
         primaryStage.setTitle("Pac-Man JavaFX");
         Scene scene = new Scene(root, 640, 480);
         scene.setOnKeyPressed(controller);
@@ -62,17 +87,17 @@ public class JavaFXMain extends Application implements ModelListener {
         });
         ArrayList<Wall> walls = (ArrayList<Wall>) board.getWalls();
         for (Wall wall : walls) {
-            loadImage(root, wallImage);
-        }
-        PacMan pacMan = model.getPacMan();
-        loadImage(root, pacManImage);
-        ArrayList<Ghost> ghosts = (ArrayList<Ghost>) model.getGhosts();
-        for(Ghost ghost : ghosts){
-            loadImage(root, ghostImage);
+            loadImage(wallImage, nodeWalls);
         }
         ArrayList<PowerPellets> powerPellets = (ArrayList<PowerPellets>) model.getPowerPellets();
         for(PowerPellets pellets : powerPellets){
-            loadImage(root, dotImage);
+            loadImage(dotImage, nodePowerPellets);
+        }
+        PacMan pacMan = model.getPacMan();
+        loadImage(pacManImage, nodePacMan);
+        for(int i = 0; i < model.getNunGhosts(); i++){
+            loadImage(ghostImage, nodeGhosts);
+            nodeGhosts.getChildren().get(i).setVisible(false);
         }
         onModelChanged();
         primaryStage.show();
@@ -80,11 +105,62 @@ public class JavaFXMain extends Application implements ModelListener {
 
     @Override
     public void onModelChanged(){
-        drawBoard(model);
+        switch (model.getState()){
+            case ALIVE -> drawBoard(model);
+            case WIN -> {model.setTimeout(5000);displayWin();}
+            case TABLE -> displayTable();
+        }
+    }
+    private void displayTable(){
+        Map<String, List<String>> map = model.parser();
+        Platform.runLater(() -> {
+            root.getChildren().clear();
+            TableView<Map.Entry<String, List<String>>> tableView = new TableView<>();
+            tableView.prefHeightProperty().bind(primaryStage.heightProperty());
+            tableView.prefWidthProperty().bind(primaryStage.widthProperty());
+            TableColumn<Map.Entry<String, List<String>>, String> nameColumn = new TableColumn<>("Name");
+            TableColumn<Map.Entry<String, List<String>>, String> levelColumn1 = new TableColumn<>("first level");
+            TableColumn<Map.Entry<String, List<String>>, String> levelColumn2 = new TableColumn<>("second level");
+            TableColumn<Map.Entry<String, List<String>>, String> levelColumn3 = new TableColumn<>("third level");
+            TableColumn<Map.Entry<String, List<String>>, String> levelColumn4 = new TableColumn<>("fourth level");
+            nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getKey()));
+            levelColumn1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
+            levelColumn2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
+            levelColumn3.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
+            levelColumn4.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
+            tableView.getColumns().addAll(nameColumn, levelColumn1, levelColumn2, levelColumn3, levelColumn4);
+            tableView.getItems().addAll(map.entrySet());
+            root.getChildren().add(tableView);
+        });
+    }
+    private void displayWin(){
+        Platform.runLater(() -> {
+            root = new GridPane();
+            Scene scene = primaryStage.getScene();
+            Label messageLabel = new Label("You win!");
+            messageLabel.setStyle("-fx-font-size: 24; -fx-font-weight: bold;");
+            GridPane.setConstraints(messageLabel, 0, 0, 2, 1);
+            root.getChildren().add(messageLabel);
+            Label nameLabel = new Label("Enter your name:");
+            GridPane.setConstraints(nameLabel, 0, 1);
+            root.getChildren().add(nameLabel);
+            TextField nameField = new TextField();
+            GridPane.setConstraints(nameField, 1, 1);
+            root.getChildren().add(nameField);
+            Button enterButton = new Button("Enter");
+            GridPane.setConstraints(enterButton, 2, 1);
+            enterButton.setOnAction(actionEvent -> {
+                controller.enterName(nameField.getText());
+            });
+            root.getChildren().add(enterButton);
+            scene.setRoot(root);
+        });
     }
 
-    public void drawBoard(PacManModel model) {
-        if(!root.getChildren().isEmpty()) {
+
+
+    private void drawBoard(PacManModel model) {
+        if(!nodePacMan.getChildren().isEmpty()) {/*
             int i;
             for (i = 0; i < model.getBoard().getWalls().size(); i++) {
                 root.getChildren().get(i).setTranslateX(model.getBoard().getWalls().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
@@ -102,6 +178,21 @@ public class JavaFXMain extends Application implements ModelListener {
             for (; i < finish + model.getBoard().getNum() - model.getPacMan().getScore(); i++) {
                 root.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i - finish).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
                 root.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
+            }*/
+            for(int i = 0; i < nodeWalls.getChildren().size(); i++){
+                nodeWalls.getChildren().get(i).setTranslateX(model.getBoard().getWalls().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
+                nodeWalls.getChildren().get(i).setTranslateY(model.getBoard().getWalls().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
+            }
+            for(int i = 0; i < nodePowerPellets.getChildren().size() - model.getPacMan().getScore(); i++){
+                nodePowerPellets.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
+                nodePowerPellets.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
+            }
+            nodePacMan.getChildren().getFirst().setTranslateX(model.getPacMan().getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
+            nodePacMan.getChildren().getFirst().setTranslateY(model.getPacMan().getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
+            for(int i = 0; i < model.getGhosts().size(); i++){
+                nodeGhosts.getChildren().get(i).setVisible(true);
+                nodeGhosts.getChildren().get(i).setTranslateX(model.getGhosts().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
+                nodeGhosts.getChildren().get(i).setTranslateY(model.getGhosts().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
             }
             if(flag){
                 text = new Text("SCORE:" + model.getPacMan().getScore());
@@ -123,11 +214,11 @@ public class JavaFXMain extends Application implements ModelListener {
         }
     }
 
-    private void loadImage(StackPane root, Image image) {
+    private void loadImage(Image image, StackPane node) {
         ImageView imageView = new ImageView(image);
         imageView.setFitWidth(SIZE);
         imageView.setFitHeight(SIZE);
-        root.getChildren().add(imageView);
+        node.getChildren().add(imageView);
     }
 
     public static void main(String[] args) {

@@ -42,7 +42,6 @@ public class SwingController extends KeyAdapter implements ActionListener{
     public void actionPerformed(ActionEvent e) {
         try {
             model.getPacMan().setUserName(inputModel.getText(0, inputModel.getLength()));
-            model.setTimeout(145);
             model.updateTable();
             model.setState(State.TABLE);
         } catch (BadLocationException ex) {

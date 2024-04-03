@@ -21,6 +21,7 @@ public class PacManModel implements AutoCloseable {
     private long finish;
     private long time;
     private Levels level = new Levels(1);
+    private final int nunGhosts = 4;
     public PacManModel() throws IOException {
         thread = new Ticker(this);
         thread.start();
@@ -147,5 +148,8 @@ public class PacManModel implements AutoCloseable {
     }
     public void setTimeout(long timeout) {
         this.timeout = timeout;
+    }
+    public int getNunGhosts() {
+        return nunGhosts;
     }
 }
