@@ -7,11 +7,11 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Ghost implements GameObject{
     private int x;
     private int y;
-    private Board board;
+    private final Board board;
     private Direction direction;
     private final int WIDTH;
     private final int HEIGHT;
-    private PacManModel model;
+    private final PacManModel model;
     public Ghost(int x, int y, int WIDTH, int HEIGHT, Board board, PacManModel model) {
         this.model = model;
         this.board = board;

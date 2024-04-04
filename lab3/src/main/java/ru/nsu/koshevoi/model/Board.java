@@ -7,8 +7,8 @@ public class Board {
     private final int width;
     private int height;
     private final List<Wall> walls;
-    private List<String> map;
-    private List<PowerPellets> powerPellets;
+    private final List<String> map;
+    private final List<PowerPellets> powerPellets;
     private int num = 0;
     public Board() throws IOException {
         map = new ArrayList<>();

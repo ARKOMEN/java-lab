@@ -1,7 +1,8 @@
 package ru.nsu.koshevoi.model;
 
 public class PowerPellets implements GameObject{
-    private int x, y;
+    private final int x;
+    private final int y;
 
     PowerPellets(int x, int y){
         this.x = x;

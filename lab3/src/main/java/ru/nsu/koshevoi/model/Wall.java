@@ -1,10 +1,10 @@
 package ru.nsu.koshevoi.model;
 
 public class Wall {
-    private int x;
-    private int y;
-    private int width;
-    private int height;
+    private final int x;
+    private final int y;
+    private final int width;
+    private final int height;
 
     public Wall(int x, int y, int width, int height) {
         this.x = x;
@@ -23,13 +23,5 @@ public class Wall {
 
     public int getY() {
         return y;
-    }
-
-    public int getWidth() {
-        return width;
-    }
-
-    public int getHeight() {
-        return height;
     }
 }

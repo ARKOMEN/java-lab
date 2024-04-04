@@ -6,8 +6,8 @@ public class PacMan implements GameObject{
     private Direction direction;
     private final int WIDTH;
     private final int HEIGHT;
-    private Board board;
-    private PacManModel model;
+    private final Board board;
+    private final PacManModel model;
     private int score = 0;
     private String userName;
 

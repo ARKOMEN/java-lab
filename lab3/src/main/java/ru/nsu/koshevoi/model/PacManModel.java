@@ -2,7 +2,6 @@ package ru.nsu.koshevoi.model;
 
 import java.io.*;
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 
 public class PacManModel implements AutoCloseable {
@@ -18,7 +17,6 @@ public class PacManModel implements AutoCloseable {
     private Board board;
     private State state = State.ALIVE;
     private long start;
-    private long finish;
     private long time;
     private Levels level = new Levels(1);
     private final int nunGhosts = 4;
@@ -130,7 +128,6 @@ public class PacManModel implements AutoCloseable {
         thread.interrupt();
         thread.join();
     }
-    public long getTime(){return time;}
     public State getState() {
         return state;
     }
@@ -139,9 +136,6 @@ public class PacManModel implements AutoCloseable {
     }
     public void setTime(long time) {
         this.time = start - time;
-    }
-    public Levels getLevel() {
-        return level;
     }
     public List<PowerPellets> getPowerPellets() {
         return powerPellets;

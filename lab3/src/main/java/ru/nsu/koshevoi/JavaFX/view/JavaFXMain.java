@@ -2,16 +2,11 @@ package ru.nsu.koshevoi.JavaFX.view;
 
 import javafx.application.Application;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.event.Event;
-import javafx.event.EventType;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
@@ -27,7 +22,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import javafx.application.Platform;
 
 
@@ -47,11 +41,11 @@ public class JavaFXMain extends Application implements ModelListener {
     Stage primaryStage;
     boolean flag = true;
     Text text;
-    Text text1;
     JavaFXController controller;
     @Override
     public void start(Stage primaryStage) throws IOException {
         this.primaryStage = primaryStage;
+        this.primaryStage.getIcons().add(new Image(new FileInputStream("pac.png")));
         model = new PacManModel();
         controller = new JavaFXController(model);
         model.setListener(this);
@@ -190,14 +184,10 @@ public class JavaFXMain extends Application implements ModelListener {
             }
             if(model.getState() == State.ALIVE) {
                 text.setText("SCORE:" + model.getPacMan().getScore());
-            }else if(model.getState() == State.DEAD){
+            }else if(model.getState() == State.DEAD) {
                 text.setText("GAME OVER");
                 root.getChildren().removeAll();
-            }else if(model.getState() == State.WIN){
-                text.setText("YOU WIN! Your time " + model.getTime()/60);
-                root.getChildren().removeAll();
             }
-
         }
     }
 

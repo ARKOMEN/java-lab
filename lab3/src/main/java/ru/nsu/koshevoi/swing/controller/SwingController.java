@@ -8,7 +8,6 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.PlainDocument;
 import java.awt.event.*;
-import java.io.IOException;
 
 public class SwingController extends KeyAdapter implements ActionListener{
     public static final String SUBMIT_ANSWER = "submitAnswer";

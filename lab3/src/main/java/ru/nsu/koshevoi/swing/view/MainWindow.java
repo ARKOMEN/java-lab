@@ -4,38 +4,27 @@ import ru.nsu.koshevoi.model.*;
 import ru.nsu.koshevoi.swing.controller.SwingController;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.lang.reflect.GenericArrayType;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
-import javax.swing.border.EmptyBorder;
-import javax.swing.text.Document;
-import javax.swing.text.PlainDocument;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dimension;
-import javax.swing.JScrollPane;
 import javax.swing.JTable;
 
 public class MainWindow extends JFrame implements ModelListener {
     private final PacManModel model;
     private final static int SIZE = 20;
     private final BoardPanel boardPanel;
-    private SwingController controller;
+    private final SwingController controller;
 
     public MainWindow(PacManModel model, SwingController controller) {
         this.model = model;
