@@ -63,14 +63,26 @@ public class JavaFXMain extends Application implements ModelListener {
         Scene scene = new Scene(root, 640, 480);
         scene.setOnKeyPressed(controller);
         primaryStage.setScene(scene);
-        InputStream inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/a.png");
-        wallImage = new Image(inputStream);
-        inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/b.png");
-        pacManImage= new Image(inputStream);
-        inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/c.png");
-        ghostImage = new Image(inputStream);
-        inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/d.png");
-        dotImage = new Image(inputStream);
+        try(InputStream inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/a.png")){
+            wallImage = new Image(inputStream);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        try(InputStream inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/b.png")){
+            pacManImage = new Image(inputStream);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        try(InputStream inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/c.png")){
+            ghostImage = new Image(inputStream);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+        try(InputStream inputStream = new FileInputStream("/home/artemiy/java-labs/java-lab/lab3/src/main/resources/d.png")){
+            dotImage = new Image(inputStream);
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
         primaryStage.setOnCloseRequest((WindowEvent event) -> {
             try {
                 model.close();

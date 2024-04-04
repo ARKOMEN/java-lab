@@ -10,7 +10,9 @@ public class Board {
     private final List<String> map;
     private final List<PowerPellets> powerPellets;
     private int num = 0;
-    public Board() throws IOException {
+    private PacManModel model;
+    public Board(PacManModel model) throws IOException {
+        this.model = model;
         map = new ArrayList<>();
         this.height = 0;
         this.walls = new ArrayList<>();
@@ -24,11 +26,11 @@ public class Board {
                 map.add(walls);
                 for(int i = 0; i < walls.length(); i++) {
                     if (walls.charAt(i) == '1') {
-                        Wall wall = new Wall(i, this.height, 1, 1);
+                        Wall wall = new Wall(i, this.height, walls.length(), this.height, this, model);
                         addWall(wall);
                     } else if (walls.charAt(i) == '0') {
                         num++;
-                        PowerPellets pellet = new PowerPellets(i, this.height);
+                        PowerPellets pellet = new PowerPellets(i, this.height, walls.length(), this.height, this, model);
                         addPowerPellets(pellet);
                     }
                 }

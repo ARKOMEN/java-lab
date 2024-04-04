@@ -1,25 +1,12 @@
 package ru.nsu.koshevoi.model;
 
-public class PowerPellets implements GameObject{
-    private final int x;
-    private final int y;
+public class PowerPellets extends GameObject{
 
-    PowerPellets(int x, int y){
-        this.x = x;
-        this.y = y;
+    PowerPellets(int x, int y, int WIDTH, int HEIGHT, Board board, PacManModel model){
+        super(x, y, WIDTH, HEIGHT, board, model);
     }
     @Override
     public void move(Direction direction) {
         //can't move
-    }
-
-    @Override
-    public int getX() {
-        return x;
-    }
-
-    @Override
-    public int getY() {
-        return y;
     }
 }

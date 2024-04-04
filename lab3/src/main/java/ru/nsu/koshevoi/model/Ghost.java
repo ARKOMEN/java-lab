@@ -4,22 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Ghost implements GameObject{
-    private int x;
-    private int y;
-    private final Board board;
-    private Direction direction;
-    private final int WIDTH;
-    private final int HEIGHT;
-    private final PacManModel model;
+public class Ghost extends GameObject{
+    private Direction direction = Direction.NONE;
     public Ghost(int x, int y, int WIDTH, int HEIGHT, Board board, PacManModel model) {
-        this.model = model;
-        this.board = board;
-        this.x = x;
-        this.y = y;
-        this.HEIGHT = HEIGHT;
-        this.WIDTH = WIDTH;
-        this.direction = Direction.RIGHT;
+        super(x, y, WIDTH, HEIGHT, board, model);
     }
     public void tryMove(Direction direction) {
         this.direction = direction;
@@ -88,14 +76,6 @@ public class Ghost implements GameObject{
     }
     public boolean isColliding(int x, int y) {
         return this.x == x && this.y == y;
-    }
-    @Override
-    public int getX() {
-        return x;
-    }
-    @Override
-    public int getY() {
-        return y;
     }
 
     public Direction getDirection() {

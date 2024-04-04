@@ -1,24 +1,12 @@
 package ru.nsu.koshevoi.model;
 
-public class PacMan implements GameObject{
-    private int x;
-    private int y;
-    private Direction direction;
-    private final int WIDTH;
-    private final int HEIGHT;
-    private final Board board;
-    private final PacManModel model;
+public class PacMan extends GameObject{
+    private Direction direction = Direction.NONE;
     private int score = 0;
     private String userName;
 
     public PacMan(int x, int y, int WIDTH, int HEIGHT, Board board, PacManModel model) {
-        this.model = model;
-        this.board = board;
-        this.x = x;
-        this.y = y;
-        this.WIDTH = WIDTH;
-        this.HEIGHT = HEIGHT;
-        this.direction = Direction.NONE;
+        super(x, y, WIDTH, HEIGHT, board, model);
     }
 
     private boolean checkWall(Direction direction) {
@@ -78,15 +66,6 @@ public class PacMan implements GameObject{
             model.setState(State.WIN_LEVEL);
         }
     }
-    @Override
-    public int getX() {
-        return x;
-    }
-    @Override
-    public int getY() {
-        return y;
-    }
-
     public Direction getDirection() {
         return direction;
     }

@@ -27,7 +27,7 @@ public class PacManModel implements AutoCloseable {
     }
 
     synchronized void generate() throws IOException {
-        board = new Board();
+        board = new Board(this);
         WIDTH = board.getWidth();
         HEIGHT = board.getHeight();
         powerPellets = board.getPowerPellets();
