@@ -72,7 +72,7 @@ public class PacMan implements GameObject{
             tryMove(Direction.NONE);
         }
         checkPellet();
-        if(score == 1){
+        if(score == board.getNum()){
             long finish = System.currentTimeMillis();
             model.setTime(finish);
             model.setState(State.WIN_LEVEL);

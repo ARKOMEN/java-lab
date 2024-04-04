@@ -106,7 +106,7 @@ public class JavaFXMain extends Application implements ModelListener {
     @Override
     public void onModelChanged(){
         switch (model.getState()){
-            case ALIVE -> drawBoard(model);
+            case ALIVE, DEAD -> drawBoard(model);
             case WIN -> {model.setTimeout(5000);displayWin();}
             case TABLE -> displayTable();
         }
@@ -124,10 +124,10 @@ public class JavaFXMain extends Application implements ModelListener {
             TableColumn<Map.Entry<String, List<String>>, String> levelColumn3 = new TableColumn<>("third level");
             TableColumn<Map.Entry<String, List<String>>, String> levelColumn4 = new TableColumn<>("fourth level");
             nameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getKey()));
-            levelColumn1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
+            levelColumn1.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(0)));
             levelColumn2.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
-            levelColumn3.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
-            levelColumn4.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(1)));
+            levelColumn3.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(2)));
+            levelColumn4.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getValue().get(3)));
             tableView.getColumns().addAll(nameColumn, levelColumn1, levelColumn2, levelColumn3, levelColumn4);
             tableView.getItems().addAll(map.entrySet());
             root.getChildren().add(tableView);
@@ -160,32 +160,19 @@ public class JavaFXMain extends Application implements ModelListener {
 
 
     private void drawBoard(PacManModel model) {
-        if(!nodePacMan.getChildren().isEmpty()) {/*
-            int i;
-            for (i = 0; i < model.getBoard().getWalls().size(); i++) {
-                root.getChildren().get(i).setTranslateX(model.getBoard().getWalls().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
-                root.getChildren().get(i).setTranslateY(model.getBoard().getWalls().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
-            }
-            root.getChildren().get(i).setTranslateX(model.getPacMan().getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
-            root.getChildren().get(i).setTranslateY(model.getPacMan().getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
-            i++;
-            int finish = i;
-            for (; i < finish + model.getLevel().getValue(); i++) {
-                root.getChildren().get(i).setTranslateX(model.getGhosts().get(i - finish).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
-                root.getChildren().get(i).setTranslateY(model.getGhosts().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
-            }
-            finish = i;
-            for (; i < finish + model.getBoard().getNum() - model.getPacMan().getScore(); i++) {
-                root.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i - finish).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
-                root.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i - finish).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
-            }*/
+        if(!nodePacMan.getChildren().isEmpty()) {
             for(int i = 0; i < nodeWalls.getChildren().size(); i++){
                 nodeWalls.getChildren().get(i).setTranslateX(model.getBoard().getWalls().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
                 nodeWalls.getChildren().get(i).setTranslateY(model.getBoard().getWalls().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
             }
-            for(int i = 0; i < nodePowerPellets.getChildren().size() - model.getPacMan().getScore(); i++){
-                nodePowerPellets.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
-                nodePowerPellets.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
+            for(int i = 0; i < nodePowerPellets.getChildren().size(); i++){
+                if(i < nodePowerPellets.getChildren().size() - model.getPacMan().getScore()) {
+                    nodePowerPellets.getChildren().get(i).setTranslateX(model.getPowerPellets().get(i).getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
+                    nodePowerPellets.getChildren().get(i).setTranslateY(model.getPowerPellets().get(i).getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
+                    nodePowerPellets.getChildren().get(i).setVisible(true);
+                }else{
+                    nodePowerPellets.getChildren().get(i).setVisible(false);
+                }
             }
             nodePacMan.getChildren().getFirst().setTranslateX(model.getPacMan().getX() * SIZE - (double) board.getWidth() / 2 * SIZE);
             nodePacMan.getChildren().getFirst().setTranslateY(model.getPacMan().getY() * SIZE - (double) board.getHeight() / 2 * SIZE);
