@@ -2,65 +2,59 @@ package ru.nsu.koshevoi.topic7.task1;
 
 import java.util.Scanner;
 
-class Producer<T> extends Thread{
-    private final Storage<T> storage;
-    private final int id;
-    private int produced = 0;
-
-    public Producer(Storage<T> storage, int id){
-        this.storage = storage;
+class Info{
+    private int num = 0;
+    private int id;
+    public void plus(){
+        num++;
+    }
+    public int getNum(){
+        return num;
+    }
+    public void setId(int id){
         this.id = id;
     }
-
-    public void run(){
-        while (!isInterrupted()) {
-            String item = "p" + id + "-" + produced;
-            try {
-                storage.put((T) item);
-            } catch (InterruptedException e) {}
-            produced++;
-            System.out.println("Producer " + id + " produced " + item);
-        }
-    }
-
-    public int getProduced(){
-        return produced;
-    }
-
-    public int getid(){
-        return id;
+    public int getId(){
+        return this.id;
     }
 }
 
-class Consumer<T> extends Thread{
-    private final Storage<T> storage;
-    private final int id;
-    private int consumed = 0;
-    public Consumer(Storage<T> storage, int id){
-        this.storage = storage;
-        this.id = id;
-    }
+class Producer<T> extends Somebody<T>{
 
+
+    public Producer(Storage<T> storage, int id, Info info){
+        super(storage, id, info);
+    }
+    @Override
     public void run(){
-        while(!isInterrupted()){
-            String item = null;
-            try {
-                item = storage.get().toString();
-                consumed++;
-                System.out.println("Consumer " + id + " consumed " + item);
-            } catch (InterruptedException e) { }
-            try {
-                Thread.sleep((long) (Math.random() * 100) + 50);
-            } catch (InterruptedException e) { }
+        try{
+            while(true){
+                String item = "p" + id + "-" + num;
+                storage.put((T)item);
+                num++;
+                info.plus();
+                System.out.println("Producer " + id + " produced " + item);
+            }
         }
+        catch (InterruptedException e){}
     }
+}
 
-    public int getConsumed(){
-        return consumed;
+class Consumer<T> extends Somebody<T> {
+    public Consumer(Storage<T> storage, int id, Info info){
+        super(storage, id, info);
     }
-
-    public int getid(){
-        return id;
+    @Override
+    public void run(){
+        try{
+            while(true){
+                String item = storage.get().toString();
+                num++;
+                info.plus();
+                System.out.println("Consumer " + id + " consumed " + item);
+            }
+        }
+        catch (InterruptedException e){}
     }
 }
 
@@ -80,14 +74,18 @@ public class Main {
         Storage<String> storage = new Storage<>(N);
         Thread[] producers = new Thread[P];
         Thread[] consumers = new Thread[C];
+        Info[] infoProducers = new Info[P];
+        Info[] infoConsumers = new Info[C];
 
         for(int i = 0; i < P; i++){
-            producers[i] = new Thread(new Producer<>(storage, i));
+            infoProducers[i] = new Info();
+            producers[i] = new Thread(new Producer<>(storage, i, infoProducers[i]));
             producers[i].start();
 
         }
         for(int i = 0; i < C; i++){
-            consumers[i] = new Thread(new Consumer<>(storage, i));
+            infoConsumers[i] = new Info();
+            consumers[i] = new Thread(new Consumer<>(storage, i, infoConsumers[i]));
             consumers[i].start();
         }
 
@@ -108,15 +106,13 @@ public class Main {
         }
 
         int producedRes = 0, consumedRes = 0;
-        for(Thread producer : producers){
-            Producer<String> p = (Producer<String>) producer;
-            System.out.println("Производитель " + p.getid() + " произвел " + p.getProduced());
-            producedRes += p.getProduced();
+        for(Info info : infoProducers){
+            System.out.println("Producer " + info.getId() + " produced " + info.getNum() + "items");
+            producedRes += info.getNum();
         }
-        for(Thread consumer : consumers){
-            Consumer<String> c = (Consumer<String>) consumer;
-            System.out.println("Потребитель " + c.getid() + " потребил " + c.getConsumed());
-            consumedRes += c.getConsumed();
+        for(Info info : infoConsumers){
+            System.out.println("Consumer " + info.getId() + " consumed " + info.getNum() + "items");
+            consumedRes += info.getNum();
         }
         System.out.println("Всего произведено" + producedRes);
         System.out.println("Всего потреблено" + consumedRes);
