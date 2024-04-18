@@ -1,0 +1,10 @@
+BodyStorage=100
+EngineWarehouse=100
+AccessoriesWarehouse=100
+CarWarehouse=100
+AccessorySupplier=5
+BodySupplier=1
+EngineSupplier=1
+Worker=10
+Dealer=20
+LogSale=true
