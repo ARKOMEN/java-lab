@@ -1,13 +1,13 @@
 package ru.nsu.koshevoi.lab4.model.cars.and.parts;
 
 public abstract class Item {
-    private int id;
+    private String id;
 
-    public Item(int id){
+    public Item(String id){
         this.id = id;
     }
 
-    public int getid(){
+    public String getid(){
         return this.id;
     }
 }

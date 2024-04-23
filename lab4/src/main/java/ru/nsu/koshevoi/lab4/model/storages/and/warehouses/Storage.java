@@ -6,10 +6,12 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class Storage {
     private final int size;
-    private ConcurrentLinkedQueue<Item> list;
-    public Storage(int size){
+    protected ConcurrentLinkedQueue<Item> list;
+    private StorageType type;
+    public Storage(int size, StorageType type){
         this.size = size;
         this.list = new ConcurrentLinkedQueue<>();
+        this.type = type;
     }
     public int getSize(){
         return size;
@@ -23,5 +25,11 @@ public abstract class Storage {
     }
     public boolean full(){
         return size == list.size();
+    }
+    public boolean empty(){
+        return list.isEmpty();
+    }
+    public StorageType getType() {
+        return type;
     }
 }
