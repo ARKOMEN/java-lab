@@ -1,13 +1,20 @@
 package ru.nsu.koshevoi.lab4.model.dealers;
 
+import ru.nsu.koshevoi.lab4.model.FactoryThread;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse;
+import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.Storage;
+import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.*;
 
-public abstract class Dealer implements Runnable{
-    protected final Object lock = new Object();
+import java.util.UUID;
+
+public abstract class Dealer extends FactoryThread {
+    protected String id;
     protected int timeout;
     protected CarWarehouse storage;
-    public Dealer(int timeout, CarWarehouse storage){
+    public Dealer(int timeout, Storage storage){
         this.timeout = timeout;
-        this.storage = storage;
+        this.storage = (CarWarehouse) storage;
+        UUID uuid = UUID.randomUUID();
+        id = uuid.toString();
     }
 }

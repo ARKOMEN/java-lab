@@ -5,71 +5,52 @@ import ru.nsu.koshevoi.lab4.model.cars.and.parts.Accessory;
 import ru.nsu.koshevoi.lab4.model.cars.and.parts.Body;
 import ru.nsu.koshevoi.lab4.model.cars.and.parts.Car;
 import ru.nsu.koshevoi.lab4.model.cars.and.parts.Engine;
-import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse;
-import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.Storage;
-import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.StorageType;
+import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 public class Workman extends Worker{
-    private CarWarehouse carWarehouse;
-    public Workman(int timeout, Model model){
-        super(timeout, model);
+    private final BodyStorage bodyStorage;
+    private final EngineWarehouse engineWarehouse;
+    private final AccessoriesWarehouse accessoriesWarehouse;
+
+    public Workman(int timeout, Storage storage){
+        super(timeout, storage);
+        Map<String, Storage> map = model.getStorageList();
+        bodyStorage = (BodyStorage) map.get("ru.nsu.koshevoi.lab4.model.storages.and.warehouses.BodyStorage");
+        engineWarehouse = (EngineWarehouse) map.get("ru.nsu.koshevoi.lab4.model.storages.and.warehouses.EngineWarehouse");
+        accessoriesWarehouse = (AccessoriesWarehouse) map.get("ru.nsu.koshevoi.lab4.model.storages.and.warehouses.AccessoriesWarehouse");
     }
 
-    private void work() {
-        UUID uuid = UUID.randomUUID();
-        Car car = new Car(uuid.toString());
-        List<Storage> list = model.getStorageList();
-        for(Storage storage : list){
-            switch (storage.getType()){
-                case StorageType.Body -> {
-                    while(storage.empty()){
-                        try {
-                            this.wait(timeout);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    Body body = (Body) storage.get();
-                    car.setBodyId(body.getid());
+    @Override
+    public void run(){
+        while(true){
+            if(model.isFlagForWorkers()) {
+                try {
+                    work();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-                case StorageType.Engine -> {
-                    while(storage.empty()){
-                        try {
-                            this.wait(timeout);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    Engine engine = (Engine) storage.get();
-                    car.setEngineId(engine.getid());
-                }
-                case StorageType.Accessories -> {
-                    while(storage.empty()){
-                        try {
-                            this.wait(timeout);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                    Accessory accessory = (Accessory) storage.get();
-                    car.setAccessoryId(accessory.getid());
-                }
-                case StorageType.Car -> carWarehouse = (CarWarehouse) storage;
             }
         }
+    }
 
-        while(carWarehouse.full()){
+    void work() throws InterruptedException {
+        Body body = (Body) bodyStorage.get();
+        Engine engine = (Engine) engineWarehouse.get();
+        Accessory accessory = (Accessory) accessoriesWarehouse.get();
+        UUID uuid = UUID.randomUUID();
+        Car car = new Car(uuid.toString());
+        car.setAccessoryId(accessory.getid());
+        car.setEngineId(engine.getid());
+        car.setBodyId(body.getid());
+        while (carWarehouse.set(car)){
             try {
                 this.wait(timeout);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
-            }
-            synchronized (lock){
-                carWarehouse.set(car);
-                notifyAll();
             }
         }
     }

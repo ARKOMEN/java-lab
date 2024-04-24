@@ -7,26 +7,33 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 public abstract class Storage {
     private final int size;
     protected ConcurrentLinkedQueue<Item> list;
-    private StorageType type;
+    private final StorageType type;
     public Storage(int size, StorageType type){
         this.size = size;
         this.list = new ConcurrentLinkedQueue<>();
         this.type = type;
     }
-    public int getSize(){
-        return size;
-    }
 
-    public void set(Item item){
-        list.add(item);
+    public synchronized boolean set(Item item){
+        boolean flag = !list.add(item);
+        if(!flag){
+            //System.out.println(type);
+            notifyAll();
+        }
+        return flag;
     }
-    public Item get(){
-        return list.poll();
+    public synchronized Item get() throws InterruptedException {
+        while (empty()){
+            wait();
+        }
+        Item item = list.poll();
+        notifyAll();
+        return item;
     }
-    public boolean full(){
+    public synchronized boolean full(){
         return size == list.size();
     }
-    public boolean empty(){
+    public synchronized boolean empty(){
         return list.isEmpty();
     }
     public StorageType getType() {

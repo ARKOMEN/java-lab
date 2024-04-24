@@ -11,19 +11,22 @@ public class AccessorySupplier extends Supplier{
         super(timeout, storage);
     }
 
-    private void work() {
+    @Override
+    public void run(){
+        while(true){
+            work();
+        }
+    }
+
+    void work() {
         UUID uuid = UUID.randomUUID();
         Accessory accessory = new Accessory(uuid.toString());
-        while(storage.full()){
+        while(storage.set(accessory)){
             try {
                 this.wait(timeout);
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }
-        synchronized (lock){
-            storage.set(accessory);
-            notifyAll();
         }
     }
 }

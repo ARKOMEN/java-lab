@@ -7,23 +7,26 @@ import java.util.UUID;
 
 public class EngineSupplier extends Supplier{
 
-    EngineSupplier(int timeout, Storage storage){
+    public EngineSupplier(int timeout, Storage storage){
         super(timeout, storage);
+    }
+
+    @Override
+    public void run(){
+        while(true){
+            work();
+        }
     }
 
     private void work() {
         UUID uuid = UUID.randomUUID();
         Engine engine = new Engine(uuid.toString());
-        while(storage.full()){
+        while(storage.set(engine)){
             try {
-                this.wait(timeout);
+                wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }
-        synchronized (lock){
-            storage.set(engine);
-            notifyAll();
         }
     }
 }

@@ -14,23 +14,23 @@ public class ConfigParser {
         try(BufferedReader buff = new BufferedReader(new FileReader((arg)))){
             String string;
             while ((string = buff.readLine()) != null){
-                if(string.contains("Storage") || string.contains("Warehouse")){
-                    model.addStorages(List.of(string.split("=")));
-                }
-                else if(string.contains("Supplier")){
+                if(string.contains("supplier")){
                     num += Integer.parseInt(List.of(string.split("=")).get(1));
                     model.addSuppliers(List.of(string.split("=")));
                 }
-                else if(string.contains("Worker")){
+                else if(string.contains("dealer")){
                     num += Integer.parseInt(List.of(string.split("=")).get(1));
-                    model.addWorkers(List.of(string.split("=")));
+                    model.addSuppliers(List.of(string.split("=")));
                 }
-                else if(string.contains("Dealer")){
+                else if(string.contains("worker")){
                     num += Integer.parseInt(List.of(string.split("=")).get(1));
-                    model.addDealers(List.of(string.split("=")));
+                    model.addSuppliers(List.of(string.split("=")));
+                }
+                else if(string.contains("storage") || string.contains("warehouse")){
+                    model.addSuppliers(List.of(string.split("=")));
                 }
                 else if(string.contains("LogSale")){
-                    model.addOther(List.of(string.split("=")));
+                    model.addSuppliers(List.of(string.split("=")));
                 }
             }
         } catch (IOException e) {

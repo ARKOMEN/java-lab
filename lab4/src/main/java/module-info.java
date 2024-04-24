@@ -19,4 +19,7 @@ module ru.nsu.koshevoi.lab4 {
     opens ru.nsu.koshevoi.lab4.view to javafx.fxml;
     exports ru.nsu.koshevoi.lab4.model.workers;
     exports ru.nsu.koshevoi.lab4.model.dealers;
+    exports ru.nsu.koshevoi.lab4.model.storages.and.warehouses;
+    exports ru.nsu.koshevoi.lab4.model.cars.and.parts;
+    opens ru.nsu.koshevoi.lab4.model to javafx.fxml;
 }

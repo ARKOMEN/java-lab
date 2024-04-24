@@ -1,6 +1,5 @@
 package ru.nsu.koshevoi.lab4.model.suppliers;
 
-import ru.nsu.koshevoi.lab4.model.cars.and.parts.Accessory;
 import ru.nsu.koshevoi.lab4.model.cars.and.parts.Body;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.Storage;
 
@@ -12,19 +11,22 @@ public class BodySupplier extends Supplier{
         super(timeout, storage);
     }
 
+    @Override
+    public void run(){
+        while(true){
+            work();
+        }
+    }
+
     private void work() {
         UUID uuid = UUID.randomUUID();
         Body body = new Body(uuid.toString());
-        while(storage.full()){
+        while(storage.set(body)){
             try {
-                this.wait(timeout);
+                wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-        }
-        synchronized (lock){
-            storage.set(body);
-            notifyAll();
         }
     }
 }
