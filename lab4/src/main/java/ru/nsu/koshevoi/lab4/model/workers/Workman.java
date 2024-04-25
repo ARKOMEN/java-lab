@@ -28,30 +28,22 @@ public class Workman extends Worker{
     public void run(){
         while(true){
             if(model.isFlagForWorkers()) {
-                try {
-                    work();
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
+                work();
             }
         }
     }
 
-    void work() throws InterruptedException {
+    private void work() {
         Body body = (Body) bodyStorage.get();
         Engine engine = (Engine) engineWarehouse.get();
         Accessory accessory = (Accessory) accessoriesWarehouse.get();
-        UUID uuid = UUID.randomUUID();
-        Car car = new Car(uuid.toString());
-        car.setAccessoryId(accessory.getid());
-        car.setEngineId(engine.getid());
-        car.setBodyId(body.getid());
-        while (carWarehouse.set(car)){
-            try {
-                this.wait(timeout);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
+        if(body != null && engine != null && accessory != null) {
+            UUID uuid = UUID.randomUUID();
+            Car car = new Car(uuid.toString());
+            car.setAccessoryId(accessory.getid());
+            car.setEngineId(engine.getid());
+            car.setBodyId(body.getid());
+            carWarehouse.set(car);
         }
     }
 }

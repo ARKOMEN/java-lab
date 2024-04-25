@@ -2,35 +2,26 @@ package ru.nsu.koshevoi.lab4.model.storages.and.warehouses;
 
 import ru.nsu.koshevoi.lab4.model.cars.and.parts.Item;
 
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.Queue;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class Storage {
     private final int size;
-    protected ConcurrentLinkedQueue<Item> list;
+    protected Queue<Item> list;
     private final StorageType type;
     public Storage(int size, StorageType type){
         this.size = size;
-        this.list = new ConcurrentLinkedQueue<>();
+        this.list = new LinkedBlockingQueue<>(size);
         this.type = type;
     }
 
-    public synchronized boolean set(Item item){
-        boolean flag = !list.add(item);
-        if(!flag){
-            //System.out.println(type);
-            notifyAll();
-        }
-        return flag;
+    public void set(Item item){
+        list.add(item);
     }
-    public synchronized Item get() throws InterruptedException {
-        while (empty()){
-            wait();
-        }
-        Item item = list.poll();
-        notifyAll();
-        return item;
+    public Item get() {
+        return list.poll();
     }
-    public synchronized boolean full(){
+    public boolean full(){
         return size == list.size();
     }
     public synchronized boolean empty(){
@@ -38,5 +29,8 @@ public abstract class Storage {
     }
     public StorageType getType() {
         return type;
+    }
+    public int getSize(){
+        return list.size();
     }
 }

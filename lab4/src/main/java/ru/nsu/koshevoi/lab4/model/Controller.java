@@ -12,7 +12,8 @@ public class Controller extends Thread {
     @Override
     public void run() {
         while (true){
-            model.setFlagForWorkers(!carWarehouse.full());
+            boolean flag = carWarehouse.full();
+            model.setFlagForWorkers(!flag);
         }
     }
 }

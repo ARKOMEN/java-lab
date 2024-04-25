@@ -5,6 +5,8 @@ import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.Storage;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.*;
 
+import java.time.LocalTime;
+
 
 public class BMW extends Dealer{
 
@@ -25,7 +27,9 @@ public class BMW extends Dealer{
 
     public void work() throws InterruptedException {
         Car car = (Car) storage.get();
-        System.out.println("Time: Dealer " + id + ": Auto " + car.getid() + " (Body: " + car.getBodyId() + ", Motor: " +
-                car.getEngineId() + ", Accessory: " + car.getAccessoryId());
+        if(car != null) {
+            System.out.println(LocalTime.now() + id + ": Auto " + car.getid() + " (Body: " + car.getBodyId() + ", Motor: " +
+                    car.getEngineId() + ", Accessory: " + car.getAccessoryId());
+        }
     }
 }
