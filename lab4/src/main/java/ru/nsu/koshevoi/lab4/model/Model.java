@@ -12,10 +12,7 @@ import ru.nsu.koshevoi.lab4.model.workers.Workman;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.Executor;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
+import java.util.concurrent.*;
 
 public class Model {
     private Thread thread;
@@ -28,10 +25,10 @@ public class Model {
     private Controller controller;
     private ModelListener listener;
     private ExecutorService executorService;
-    private int N1;
-    private int N2;
-    private int N3;
-    private int M;
+    private double N1 = 10;
+    private double N2 = 10;
+    private double N3 = 10;
+    private double M = 10;
     private List<FactoryThread> listOfThreads;
     private List<Future<?>> futureList;
     public boolean isFlagForWorkers() {
@@ -44,8 +41,9 @@ public class Model {
 
     private boolean flagForWorkers;
 
-    public Model() {
+    public Model(ModelListener listener) {
         flagForWorkers = true;
+        this.listener = listener;
         thread = new Ticker(this);
         thread.start();
         listStoragesForParse = new ArrayList<>();
@@ -103,8 +101,9 @@ public class Model {
         notifyMovement();
     }
 
-    public void stop(){
-        executorService.shutdownNow();
+    public void stop() throws InterruptedException {
+        executorService.shutdown();
+        executorService.awaitTermination(100L, TimeUnit.MILLISECONDS);
     }
 
     private void notifyMovement(){
@@ -114,7 +113,7 @@ public class Model {
     }
 
     public long getTimeout(){
-        return 200;
+        return 10;
     }
     public void addOther(List<String> other) {
         this.other.add(other);
@@ -131,37 +130,31 @@ public class Model {
     public void addStorages(List<String> storages) {
         this.listStoragesForParse.add(storages);
     }
-    public void setListener(ModelListener listener) {
-        this.listener = listener;
-    }
     public Map<String, Storage> getStorageList() {
         return storageList;
     }
-    public int getN1() {
+    public double getN1() {
         return N1;
     }
-    public int getN2() {
+    public double getN2() {
         return N2;
     }
-    public int getN3() {
+    public double getN3() {
         return N3;
     }
-    public int getM() {
+    public double getM() {
         return M;
     }
-    public void setN1(int n1) {
+    public void setN1(double n1) {
         N1 = n1;
     }
-    public void setN2(int n2) {
+    public void setN2(double n2) {
         N2 = n2;
     }
-    public void setN3(int n3) {
+    public void setN3(double n3) {
         N3 = n3;
     }
-    public void setM(int m) {
+    public void setM(double m) {
         M = m;
-    }
-    public List<Future<?>> getFutureList() {
-        return futureList;
     }
 }

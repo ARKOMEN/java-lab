@@ -17,11 +17,11 @@ public abstract class Dealer extends FactoryThread {
 
     protected TypeOfThread type = TypeOfThread.dealer;
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(double timeout) {
         this.timeout = timeout;
     }
 
-    protected int timeout;
+    protected double timeout;
     protected CarWarehouse storage;
     public Dealer(int timeout, Storage storage){
         this.timeout = timeout;

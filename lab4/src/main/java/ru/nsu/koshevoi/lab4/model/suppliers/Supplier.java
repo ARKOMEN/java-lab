@@ -12,11 +12,11 @@ public abstract class Supplier extends FactoryThread {
 
     protected TypeOfThread type;
 
-    public void setTimeout(int timeout) {
+    public void setTimeout(double timeout) {
         this.timeout = timeout;
     }
 
-    protected int timeout;
+    protected double timeout;
     protected Storage storage;
     public Supplier(int timeout, Storage storage){
         this.timeout = timeout;

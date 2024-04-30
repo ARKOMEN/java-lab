@@ -24,9 +24,9 @@ public class EngineSupplier extends Supplier{
         UUID uuid = UUID.randomUUID();
         Engine engine = new Engine(uuid.toString());
         try{storage.set(engine);}
-        catch (Exception e){}
+        catch (Exception ignored){}
         try {
-            sleep(timeout*100L);
+            sleep((long) (timeout*1000L));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

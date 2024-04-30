@@ -24,9 +24,9 @@ public class AccessorySupplier extends Supplier{
         UUID uuid = UUID.randomUUID();
         Accessory accessory = new Accessory(uuid.toString());
         try{storage.set(accessory);}
-        catch (Exception e){}
+        catch (Exception ignored){}
         try {
-            sleep(timeout * 100L);
+            sleep((long) (timeout * 1000L));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

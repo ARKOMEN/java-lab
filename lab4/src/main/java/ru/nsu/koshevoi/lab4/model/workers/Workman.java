@@ -16,6 +16,7 @@ public class Workman extends Worker{
     private final EngineWarehouse engineWarehouse;
     private final AccessoriesWarehouse accessoriesWarehouse;
 
+    int n = 0;
     public Workman(int timeout, Storage storage){
         super(timeout, storage);
         Map<String, Storage> map = model.getStorageList();

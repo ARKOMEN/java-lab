@@ -1,10 +1,12 @@
 package ru.nsu.koshevoi.lab4.view;
 
 import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
-import javafx.scene.control.Button;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
@@ -16,9 +18,8 @@ import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.Storage;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.StorageType;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
-import java.util.concurrent.Future;
+import java.util.Objects;
 
 import static java.lang.Thread.sleep;
 
@@ -31,47 +32,69 @@ public class App extends Application implements ModelListener {
     private Label carLabel;
     private VBox leftLayout = new VBox(10);
     private Stage stage;
+    private Slider bodyProductionSlider;
+    private Slider engineProductionSlider;
+    private Slider accessoryProductionSlider;
+    private Slider carProductionSlider;
 
     @Override
     public void start(Stage stage) throws IOException {
-        model = new Model();
+        model = new Model(this);
         controller = new Controller();
-        model.setListener(this);
         this.stage = stage;
         this.stage.setOnCloseRequest((WindowEvent event) ->{
-            model.stop();
-            List<Future<?>> futureList = model.getFutureList();
-            for(Future<?> future : futureList){
-                while(!future.isDone()){
-                    continue;
-                }
+            try {
+                model.stop();
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
             }
+            System.exit(0);
         });
-        Slider bodyProductionSlider = new Slider();
-        Slider engineProductionSlider = new Slider();
-        Slider accessoryProductionSlider = new Slider();
-        Slider carProductionSlider = new Slider();
+        bodyProductionSlider = new Slider();
+        engineProductionSlider = new Slider();
+        accessoryProductionSlider = new Slider();
+        carProductionSlider = new Slider();
         bodyProductionSlider.setMax(20);
+        bodyProductionSlider.setValue(model.getM());
         engineProductionSlider.setMax(20);
+        engineProductionSlider.setValue(model.getN1());
         accessoryProductionSlider.setMax(20);
+        accessoryProductionSlider.setValue(model.getN2());
         carProductionSlider.setMax(20);
-        bodyProductionSlider.valueProperty().addListener(((observableValue, number, t1) -> {
-            Map<String, Storage> map = model.getStorageList();
-            for(Map.Entry<String, Storage> entry : map.entrySet()){
-                switch (entry.getValue().getType()){
-                    case Body -> {
-                        bodyLabel.setText("Колоичество кузовов: " + entry.getValue().getSize());
-
-                    }
-                    case Engine -> engineLabel.setText("Количество моторов: "  + entry.getValue().getSize());
-                    case Accessories -> accessoryLabel.setText("Количество аксессуаров: " + entry.getValue().getSize());
-                    case Car ->  carLabel.setText("Количество машин: " + entry.getValue().getSize());}
-            }
-        }));
+        carProductionSlider.setValue(model.getN3());
         bodyLabel = new Label("Колоичество кузовов: ");
         engineLabel = new Label("Количество моторов: ");
         accessoryLabel = new Label("Количество аксессуаров: ");
         carLabel = new Label("Количество машин: ");
+        Map<String, Storage> map = model.getStorageList();
+        bodyProductionSlider.valueProperty().addListener(
+                new ChangeListener<Number>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                        model.setM((Double) t1);
+                    }
+                });
+        engineProductionSlider.valueProperty().addListener(
+                new ChangeListener<Number>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                        model.setN1((Double) t1);
+                    }
+                });
+        accessoryProductionSlider.valueProperty().addListener(
+            new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                    model.setN2((Double) t1);
+                }
+            });
+        carProductionSlider.valueProperty().addListener(
+            new ChangeListener<Number>() {
+                @Override
+                public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
+                    model.setN3((Double) t1);
+                }
+            });
         VBox leftLayout = new VBox(10);
         HBox topRightLayout = new HBox(10);
         HBox bottomLayout = new HBox(10);
@@ -101,13 +124,19 @@ public class App extends Application implements ModelListener {
 
     @Override
     public void onModelChanged() {
-        try {/*
-            model.setM((int) carProductionSlider.getValue());
-            model.setN1((int) bodyProductionSlider.getValue());
-            model.setN2((int) engineProductionSlider.getValue());
-            model.setN3((int) accessoryProductionSlider.getValue());*/
-            display();
-        } catch (Exception e) {}
+        try {
+            Platform.runLater(() ->{
+                Map<String, Storage> map = model.getStorageList();
+                for(Map.Entry<String, Storage> entry : map.entrySet()){
+                    switch (entry.getValue().getType()){
+                        case Body -> bodyLabel.setText("Колоичество кузовов: " + entry.getValue().getSize());
+                        case Engine -> engineLabel.setText("Количество моторов: " + entry.getValue().getSize());
+                        case Accessories -> accessoryLabel.setText("Количество аксессуаров: " + entry.getValue().getSize());
+                        case Car ->  carLabel.setText("Количество машин: " + entry.getValue().getSize());
+                    }
+                }
+            });
+        } catch (Exception ignored) {}
     }
 
     private void display(){

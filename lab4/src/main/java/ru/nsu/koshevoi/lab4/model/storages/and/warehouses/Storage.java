@@ -16,7 +16,8 @@ public abstract class Storage {
     }
 
     public void set(Item item){
-        list.add(item);
+        System.out.println(list.add(item));
+        System.out.println(list.size());
     }
     public Item get() {
         return list.poll();

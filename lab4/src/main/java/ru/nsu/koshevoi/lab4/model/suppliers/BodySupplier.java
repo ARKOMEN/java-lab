@@ -24,9 +24,9 @@ public class BodySupplier extends Supplier{
         UUID uuid = UUID.randomUUID();
         Body body = new Body(uuid.toString());
         try{storage.set(body);}
-        catch (Exception e){}
+        catch (Exception ignored){}
         try {
-            sleep(timeout * 100L);
+            sleep((long) (timeout * 100L));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

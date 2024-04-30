@@ -2,8 +2,8 @@ ru.nsu.koshevoi.lab4.model.storages.and.warehouses.BodyStorage=100
 ru.nsu.koshevoi.lab4.model.storages.and.warehouses.EngineWarehouse=100
 ru.nsu.koshevoi.lab4.model.storages.and.warehouses.AccessoriesWarehouse=100
 ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse=100
-ru.nsu.koshevoi.lab4.model.suppliers.AccessorySupplier=5=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.AccessoriesWarehouse=10
-ru.nsu.koshevoi.lab4.model.suppliers.EngineSupplier=1=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.EngineWarehouse=10
-ru.nsu.koshevoi.lab4.model.suppliers.BodySupplier=1=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.BodyStorage=10
-ru.nsu.koshevoi.lab4.model.dealers.BMW=20=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse=10
-ru.nsu.koshevoi.lab4.model.workers.Workman=10=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse=110
+ru.nsu.koshevoi.lab4.model.suppliers.AccessorySupplier=5=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.AccessoriesWarehouse=1
+ru.nsu.koshevoi.lab4.model.suppliers.EngineSupplier=1=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.EngineWarehouse=1
+ru.nsu.koshevoi.lab4.model.suppliers.BodySupplier=1=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.BodyStorage=1
+ru.nsu.koshevoi.lab4.model.dealers.BMW=20=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse=1
+ru.nsu.koshevoi.lab4.model.workers.Workman=10=ru.nsu.koshevoi.lab4.model.storages.and.warehouses.CarWarehouse=1
