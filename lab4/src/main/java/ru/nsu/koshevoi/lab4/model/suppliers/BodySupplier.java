@@ -26,7 +26,7 @@ public class BodySupplier extends Supplier{
         try{storage.set(body);}
         catch (Exception ignored){}
         try {
-            sleep((long) (timeout * 100L));
+            sleep((long) (timeout * 1000L));
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }

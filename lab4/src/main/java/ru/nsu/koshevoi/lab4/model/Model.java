@@ -1,13 +1,12 @@
 package ru.nsu.koshevoi.lab4.model;
 
-import javafx.concurrent.Service;
+import javafx.application.Platform;
 import ru.nsu.koshevoi.lab4.model.dealers.Dealer;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.*;
 import ru.nsu.koshevoi.lab4.model.suppliers.AccessorySupplier;
 import ru.nsu.koshevoi.lab4.model.suppliers.BodySupplier;
 import ru.nsu.koshevoi.lab4.model.suppliers.EngineSupplier;
 import ru.nsu.koshevoi.lab4.model.workers.Worker;
-import ru.nsu.koshevoi.lab4.model.workers.Workman;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -16,21 +15,17 @@ import java.util.concurrent.*;
 
 public class Model {
     private Thread thread;
-    private List<List<String>> listStoragesForParse;
-    private List<List<String>> suppliers;
-    private List<List<String>> workers;
-    private List<List<String>> dealers;
-    private List<List<String>> other;
+    private List<List<String>> inputList;
     private Map<String, Storage> storageList;
     private Controller controller;
     private ModelListener listener;
     private ExecutorService executorService;
-    private double N1 = 10;
-    private double N2 = 10;
-    private double N3 = 10;
-    private double M = 10;
+    private double engineTimeout = 10;
+    private double bodyTimeout = 10;
+    private double accessoryTimeout = 10;
+    private double carTimeout = 10;
     private List<FactoryThread> listOfThreads;
-    private List<Future<?>> futureList;
+    private List<FactoryThread> listOfDealers;
     public boolean isFlagForWorkers() {
         return flagForWorkers;
     }
@@ -46,18 +41,14 @@ public class Model {
         this.listener = listener;
         thread = new Ticker(this);
         thread.start();
-        listStoragesForParse = new ArrayList<>();
-        suppliers = new ArrayList<>();
-        workers = new ArrayList<>();
-        dealers = new ArrayList<>();
-        other = new ArrayList<>();
+        inputList = new ArrayList<>();
         storageList = new HashMap<>();
         listOfThreads = new ArrayList<>();
-        futureList = new ArrayList<>();
+        listOfDealers = new ArrayList<>();
         int numThreads = ConfigParser.parser("/home/artemiy/java-labs/java-lab/lab4/src/main/resources/config.txt", this);
         executorService = Executors.newFixedThreadPool(numThreads + 1);
         Worker.setModel(this);
-        for(List<String> list : suppliers){
+        for(List<String> list : inputList){
             if(list.getFirst().contains("storages") || list.getFirst().contains("warehouse")){
                 try{
                     Constructor<?> constructor = Class.forName(list.getFirst()).getDeclaredConstructor(int.class);
@@ -78,8 +69,11 @@ public class Model {
                         Class<?> clazz = Class.forName(list.getFirst());
                         Constructor<?> constructor = clazz.getDeclaredConstructor(int.class, Storage.class);
                         FactoryThread object = (FactoryThread) constructor.newInstance(Integer.parseInt(list.get(3)), storageList.get(list.get(2)));
-                        futureList.add(executorService.submit(object));
                         listOfThreads.add(object);
+                        if(list.getFirst().contains("dealers")){
+                            listOfDealers.add(object);
+                        }
+                        executorService.submit(object);
                     }
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
                          InvocationTargetException e) {
@@ -90,15 +84,19 @@ public class Model {
     }
 
     public void update(){
-        for(FactoryThread object : listOfThreads){
-            switch (object.getType()){
-                case dealer -> ((Dealer)object).setTimeout(M);
-                case bodySupplier -> ((BodySupplier)object).setTimeout(N1);
-                case engineSupplier -> ((EngineSupplier)object).setTimeout(N2);
-                case accessorySupplier -> ((AccessorySupplier)object).setTimeout(N3);
-            }
-        }
-        notifyMovement();
+        try{
+            Platform.runLater(() -> {
+                for(FactoryThread object : listOfThreads){
+                    switch (object.getType()){
+                        case dealer -> ((Dealer)object).setTimeout(carTimeout);
+                        case bodySupplier -> ((BodySupplier)object).setTimeout(bodyTimeout);
+                        case engineSupplier -> ((EngineSupplier)object).setTimeout(engineTimeout);
+                        case accessorySupplier -> ((AccessorySupplier)object).setTimeout(accessoryTimeout);
+                    }
+                }
+                notifyMovement();
+            });
+        }catch (Exception ignored){}
     }
 
     public void stop() throws InterruptedException {
@@ -115,46 +113,37 @@ public class Model {
     public long getTimeout(){
         return 10;
     }
-    public void addOther(List<String> other) {
-        this.other.add(other);
-    }
-    public void addDealers(List<String> dealers) {
-        this.dealers.add(dealers);
-    }
-    public void addWorkers(List<String> workers) {
-        this.workers.add(workers);
-    }
-    public void addSuppliers(List<String> suppliers) {
-        this.suppliers.add(suppliers);
-    }
-    public void addStorages(List<String> storages) {
-        this.listStoragesForParse.add(storages);
+    public void addInputList(List<String> list) {
+        this.inputList.add(list);
     }
     public Map<String, Storage> getStorageList() {
         return storageList;
     }
-    public double getN1() {
-        return N1;
+    public double getEngineTimeout() {
+        return engineTimeout;
     }
-    public double getN2() {
-        return N2;
+    public double getBodyTimeout() {
+        return bodyTimeout;
     }
-    public double getN3() {
-        return N3;
+    public double getAccessoryTimeout() {
+        return accessoryTimeout;
     }
-    public double getM() {
-        return M;
+    public double getCarTimeout() {
+        return carTimeout;
     }
-    public void setN1(double n1) {
-        N1 = n1;
+    public void setEngineTimeout(double engineTimeout) {
+        this.engineTimeout = engineTimeout;
     }
-    public void setN2(double n2) {
-        N2 = n2;
+    public void setBodyTimeout(double bodyTimeout) {
+        this.bodyTimeout = bodyTimeout;
     }
-    public void setN3(double n3) {
-        N3 = n3;
+    public void setAccessoryTimeout(double accessoryTimeout) {
+        this.accessoryTimeout = accessoryTimeout;
     }
-    public void setM(double m) {
-        M = m;
+    public void setCarTimeout(double carTimeout) {
+        this.carTimeout = carTimeout;
+    }
+    public List<FactoryThread> getListOfDealers() {
+        return listOfDealers;
     }
 }

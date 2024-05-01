@@ -11,15 +11,16 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ru.nsu.koshevoi.lab4.model.FactoryThread;
 import ru.nsu.koshevoi.lab4.model.ModelListener;
 import ru.nsu.koshevoi.lab4.controller.Controller;
 import ru.nsu.koshevoi.lab4.model.Model;
+import ru.nsu.koshevoi.lab4.model.dealers.BMW;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.Storage;
-import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.StorageType;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static java.lang.Thread.sleep;
 
@@ -30,6 +31,7 @@ public class App extends Application implements ModelListener {
     private Label engineLabel;
     private Label accessoryLabel;
     private Label carLabel;
+    private Label resultLabel;
     private VBox leftLayout = new VBox(10);
     private Stage stage;
     private Slider bodyProductionSlider;
@@ -50,69 +52,99 @@ public class App extends Application implements ModelListener {
             }
             System.exit(0);
         });
-        bodyProductionSlider = new Slider();
-        engineProductionSlider = new Slider();
-        accessoryProductionSlider = new Slider();
-        carProductionSlider = new Slider();
-        bodyProductionSlider.setMax(20);
-        bodyProductionSlider.setValue(model.getM());
-        engineProductionSlider.setMax(20);
-        engineProductionSlider.setValue(model.getN1());
-        accessoryProductionSlider.setMax(20);
-        accessoryProductionSlider.setValue(model.getN2());
-        carProductionSlider.setMax(20);
-        carProductionSlider.setValue(model.getN3());
+        bodyProductionSlider = new Slider(0.0, 20.0, 10.0);
+        engineProductionSlider = new Slider(0.0, 20.0, 10.0);
+        accessoryProductionSlider = new Slider(0.0, 20.0, 10.0);
+        carProductionSlider = new Slider(0.0, 20.0, 10.0);
+        bodyProductionSlider.setValue(model.getBodyTimeout());
+        bodyProductionSlider.setShowTickMarks(true);
+        bodyProductionSlider.setSnapToTicks(true);
+        bodyProductionSlider.setShowTickLabels(true);
+        bodyProductionSlider.setBlockIncrement(2.0);
+        bodyProductionSlider.setMajorTickUnit(5.0);
+        bodyProductionSlider.setMinorTickCount(4);
+        Label labelBody = new Label("body");
+        Label labelEngine = new Label("engine");
+        Label labelAccessory = new Label("accessory");
+        Label labelCar = new Label("car");
+        engineProductionSlider.setValue(model.getEngineTimeout());
+        engineProductionSlider.setShowTickMarks(true);
+        engineProductionSlider.setSnapToTicks(true);
+        engineProductionSlider.setShowTickLabels(true);
+        engineProductionSlider.setBlockIncrement(2.0);
+        engineProductionSlider.setMajorTickUnit(5.0);
+        engineProductionSlider.setMinorTickCount(4);
+        accessoryProductionSlider.setValue(model.getAccessoryTimeout());
+        accessoryProductionSlider.setShowTickMarks(true);
+        accessoryProductionSlider.setSnapToTicks(true);
+        accessoryProductionSlider.setShowTickLabels(true);
+        accessoryProductionSlider.setBlockIncrement(2.0);
+        accessoryProductionSlider.setMajorTickUnit(5.0);
+        accessoryProductionSlider.setMinorTickCount(4);
+        carProductionSlider.setValue(model.getCarTimeout());
+        carProductionSlider.setShowTickMarks(true);
+        carProductionSlider.setSnapToTicks(true);
+        carProductionSlider.setShowTickLabels(true);
+        carProductionSlider.setBlockIncrement(2.0);
+        carProductionSlider.setMajorTickUnit(5.0);
+        carProductionSlider.setMinorTickCount(4);
         bodyLabel = new Label("Колоичество кузовов: ");
         engineLabel = new Label("Количество моторов: ");
         accessoryLabel = new Label("Количество аксессуаров: ");
-        carLabel = new Label("Количество машин: ");
+        carLabel = new Label("Количество машин на складе: ");
+        resultLabel = new Label("Количество машин переданных дилерам: ");
         Map<String, Storage> map = model.getStorageList();
         bodyProductionSlider.valueProperty().addListener(
                 new ChangeListener<Number>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                        model.setM((Double) t1);
+                        model.setBodyTimeout((Double) t1);
                     }
                 });
         engineProductionSlider.valueProperty().addListener(
                 new ChangeListener<Number>() {
                     @Override
                     public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                        model.setN1((Double) t1);
+                        model.setEngineTimeout((Double) t1);
                     }
                 });
         accessoryProductionSlider.valueProperty().addListener(
             new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                    model.setN2((Double) t1);
+                    model.setAccessoryTimeout((Double) t1);
                 }
             });
         carProductionSlider.valueProperty().addListener(
             new ChangeListener<Number>() {
                 @Override
                 public void changed(ObservableValue<? extends Number> observableValue, Number number, Number t1) {
-                    model.setN3((Double) t1);
+                    model.setCarTimeout((Double) t1);
                 }
             });
         VBox leftLayout = new VBox(10);
         HBox topRightLayout = new HBox(10);
         HBox bottomLayout = new HBox(10);
         leftLayout.getChildren().addAll(
+                labelBody,
                 bodyProductionSlider,
+                labelEngine,
                 engineProductionSlider,
+                labelAccessory,
                 accessoryProductionSlider,
+                labelCar,
                 carProductionSlider
         );
         topRightLayout.getChildren().addAll(
                 bodyLabel,
                 engineLabel,
                 accessoryLabel,
-                carLabel
+                carLabel,
+                resultLabel
         );
         VBox root = new VBox(10);
         root.getChildren().addAll(leftLayout, topRightLayout, bottomLayout);
-        Scene scene = new Scene(root, 1000, 400);
+        Scene scene = new Scene(root, 1100, 400);
         stage.setTitle("Production Sliders");
         stage.setScene(scene);
         stage.show();
@@ -132,13 +164,16 @@ public class App extends Application implements ModelListener {
                         case Body -> bodyLabel.setText("Колоичество кузовов: " + entry.getValue().getSize());
                         case Engine -> engineLabel.setText("Количество моторов: " + entry.getValue().getSize());
                         case Accessories -> accessoryLabel.setText("Количество аксессуаров: " + entry.getValue().getSize());
-                        case Car ->  carLabel.setText("Количество машин: " + entry.getValue().getSize());
+                        case Car ->  carLabel.setText("Количество машин на складе: " + entry.getValue().getSize());
                     }
                 }
+                int n = 0;
+                List<FactoryThread> list = model.getListOfDealers();
+                for(FactoryThread dealer : list){
+                    n += ((BMW)dealer).getResult();
+                }
+                resultLabel.setText("Количество машин переданных дилерам: " + n);
             });
         } catch (Exception ignored) {}
-    }
-
-    private void display(){
     }
 }

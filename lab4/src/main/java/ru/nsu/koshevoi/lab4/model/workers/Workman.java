@@ -35,16 +35,23 @@ public class Workman extends Worker{
     }
 
     private void work() {
-        Body body = (Body) bodyStorage.get();
-        Engine engine = (Engine) engineWarehouse.get();
-        Accessory accessory = (Accessory) accessoriesWarehouse.get();
-        if(body != null && engine != null && accessory != null) {
-            UUID uuid = UUID.randomUUID();
-            Car car = new Car(uuid.toString());
-            car.setAccessoryId(accessory.getid());
-            car.setEngineId(engine.getid());
-            car.setBodyId(body.getid());
-            carWarehouse.set(car);
+        Body body = null;
+        Engine engine = null;
+        Accessory accessory = null;
+        while(body == null){
+            body = (Body) bodyStorage.get();
         }
+        while(engine == null){
+            engine = (Engine) engineWarehouse.get();
+        }
+        while(accessory == null){
+            accessory = (Accessory) accessoriesWarehouse.get();
+        }
+        UUID uuid = UUID.randomUUID();
+        Car car = new Car(uuid.toString());
+        car.setAccessoryId(accessory.getid());
+        car.setEngineId(engine.getid());
+        car.setBodyId(body.getid());
+        carWarehouse.set(car);
     }
 }

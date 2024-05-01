@@ -9,6 +9,11 @@ import java.time.LocalTime;
 
 
 public class BMW extends Dealer{
+    public int getResult() {
+        return result;
+    }
+
+    private int result = 0;
 
     public BMW(int timeout, Storage storage){
         super(timeout, storage);
@@ -30,6 +35,12 @@ public class BMW extends Dealer{
         if(car != null) {
             System.out.println(LocalTime.now() + " dealer id: " + id + ": Auto " + car.getid() + " (Body: " + car.getBodyId() + ", Motor: " +
                     car.getEngineId() + ", Accessory: " + car.getAccessoryId());
+            result++;
+        }
+        try {
+            sleep((long) (timeout * 1000L));
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
         }
     }
 }
