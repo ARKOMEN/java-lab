@@ -15,8 +15,8 @@ public class BMW extends Dealer{
 
     private int result = 0;
 
-    public BMW(int timeout, Storage storage){
-        super(timeout, storage);
+    public BMW(Storage storage){
+        super(storage);
     }
 
     @Override

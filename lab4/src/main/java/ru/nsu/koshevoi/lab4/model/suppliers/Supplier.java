@@ -16,10 +16,9 @@ public abstract class Supplier extends FactoryThread {
         this.timeout = timeout;
     }
 
-    protected double timeout;
+    protected double timeout = 10;
     protected Storage storage;
-    public Supplier(int timeout, Storage storage){
-        this.timeout = timeout;
+    public Supplier(Storage storage){
         this.storage = storage;
     }
 

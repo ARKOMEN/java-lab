@@ -93,7 +93,6 @@ public class App extends Application implements ModelListener {
         accessoryLabel = new Label("Количество аксессуаров: ");
         carLabel = new Label("Количество машин на складе: ");
         resultLabel = new Label("Количество машин переданных дилерам: ");
-        Map<String, Storage> map = model.getStorageList();
         bodyProductionSlider.valueProperty().addListener(
                 new ChangeListener<Number>() {
                     @Override
@@ -158,8 +157,8 @@ public class App extends Application implements ModelListener {
     public void onModelChanged() {
         try {
             Platform.runLater(() ->{
-                Map<String, Storage> map = model.getStorageList();
-                for(Map.Entry<String, Storage> entry : map.entrySet()){
+                Map<Integer, Storage> map = model.getStorageList();
+                for(Map.Entry<Integer, Storage> entry : map.entrySet()){
                     switch (entry.getValue().getType()){
                         case Body -> bodyLabel.setText("Колоичество кузовов: " + entry.getValue().getSize());
                         case Engine -> engineLabel.setText("Количество моторов: " + entry.getValue().getSize());
@@ -174,6 +173,8 @@ public class App extends Application implements ModelListener {
                 }
                 resultLabel.setText("Количество машин переданных дилерам: " + n);
             });
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            throw new RuntimeException();
+        }
     }
 }

@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class EngineSupplier extends Supplier{
 
-    public EngineSupplier(int timeout, Storage storage){
-        super(timeout, storage);
+    public EngineSupplier(Storage storage){
+        super(storage);
         type = TypeOfThread.engineSupplier;
     }
 

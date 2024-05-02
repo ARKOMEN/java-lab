@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class AccessorySupplier extends Supplier{
 
-    public AccessorySupplier(int timeout, Storage storage){
-        super(timeout, storage);
+    public AccessorySupplier(Storage storage){
+        super(storage);
         type = TypeOfThread.accessorySupplier;
     }
 

@@ -17,14 +17,9 @@ public abstract class Worker extends FactoryThread {
         this.timeout = timeout;
     }
 
-    protected int timeout;
-    protected static Model model;
-    protected CarWarehouse carWarehouse;
-    public Worker(int timeout, Storage storage){
-        this.timeout = timeout;
-        this.carWarehouse = (CarWarehouse) storage;
-    }
-    public static void setModel(Model model){
-        Worker.model = model;
+    protected int timeout = 10;
+    protected Storage storage;
+    public Worker(Storage storage){
+        this.storage = storage;
     }
 }

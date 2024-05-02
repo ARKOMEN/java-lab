@@ -16,8 +16,8 @@ import java.util.concurrent.*;
 public class Model {
     private Thread thread;
     private List<List<String>> inputList;
-    private Map<String, Storage> storageList;
-    private Controller controller;
+    private Map<Integer, Storage> storageMap;
+    private ControllerCar controllerCar;
     private ModelListener listener;
     private ExecutorService executorService;
     private double engineTimeout = 10;
@@ -26,6 +26,31 @@ public class Model {
     private double carTimeout = 10;
     private List<FactoryThread> listOfThreads;
     private List<FactoryThread> listOfDealers;
+
+    public void setInputSupplier(List<String> inputSupplier) {
+        this.inputSupplier.add(inputSupplier);
+    }
+
+    private List<List<String>> inputSupplier;
+
+    public void setInputWorker(List<String> inputWorker) {
+        this.inputWorker.add(inputWorker);
+    }
+
+    private List<List<String>> inputWorker;
+
+    public void setInputStorage(List<String> inputStorage) {
+        this.inputStorage.add(inputStorage);
+    }
+
+    private List<List<String>> inputStorage;
+
+    public void setInputDealer(List<String> inputDealer) {
+        this.inputDealer.add(inputDealer);
+    }
+
+    private List<List<String>> inputDealer;
+
     public boolean isFlagForWorkers() {
         return flagForWorkers;
     }
@@ -37,48 +62,85 @@ public class Model {
     private boolean flagForWorkers;
 
     public Model(ModelListener listener) {
+
+        inputSupplier = new ArrayList<>();
+        inputDealer = new ArrayList<>();
+        inputWorker = new ArrayList<>();
+        inputStorage = new ArrayList<>();
+        storageMap = new HashMap<>();
+
+        listOfDealers = new ArrayList<>();
+        listOfThreads = new ArrayList<>();
         flagForWorkers = true;
         this.listener = listener;
         thread = new Ticker(this);
         thread.start();
-        inputList = new ArrayList<>();
-        storageList = new HashMap<>();
-        listOfThreads = new ArrayList<>();
-        listOfDealers = new ArrayList<>();
+
         int numThreads = ConfigParser.parser("/home/artemiy/java-labs/java-lab/lab4/src/main/resources/config.txt", this);
-        executorService = Executors.newFixedThreadPool(numThreads + 1);
-        Worker.setModel(this);
-        for(List<String> list : inputList){
-            if(list.getFirst().contains("storages") || list.getFirst().contains("warehouse")){
-                try{
-                    Constructor<?> constructor = Class.forName(list.getFirst()).getDeclaredConstructor(int.class);
-                    Storage object = (Storage) constructor.newInstance(Integer.parseInt(list.get(1)));
-                    if (Objects.requireNonNull(object.getType()) == StorageType.Car) {
-                        controller = new Controller((CarWarehouse) object, this);
-                        executorService.submit(controller);
-                    }
-                    storageList.put(list.getFirst(), object);
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
-                         InvocationTargetException | NoSuchMethodException e) {
-                    throw new RuntimeException(e);
+        executorService = Executors.newFixedThreadPool(numThreads);
+        for (List<String> list : inputStorage) {
+            try {
+                Constructor<?> constructor = Class.forName(list.get(1)).getDeclaredConstructor(int.class);
+                Storage storage = (Storage) constructor.newInstance(Integer.parseInt(list.get(2)));
+                if (Boolean.parseBoolean(list.get(3))) {
+                    Constructor<?> constructorController = Class.forName(list.get(4)).getDeclaredConstructor(Storage.class);
+                    Controller controller = (Controller) constructorController.newInstance(storage);
+                    storage.setController(controller);
                 }
+                storageMap.put(Integer.parseInt(list.getFirst()), storage);
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException |
+                     InvocationTargetException | NoSuchMethodException e) {
+                throw new RuntimeException(e);
             }
-            else{
-                try{
-                    for(int i = 0; i < Integer.parseInt(list.get(1)); i++){
-                        Class<?> clazz = Class.forName(list.getFirst());
-                        Constructor<?> constructor = clazz.getDeclaredConstructor(int.class, Storage.class);
-                        FactoryThread object = (FactoryThread) constructor.newInstance(Integer.parseInt(list.get(3)), storageList.get(list.get(2)));
-                        listOfThreads.add(object);
-                        if(list.getFirst().contains("dealers")){
-                            listOfDealers.add(object);
-                        }
-                        executorService.submit(object);
+        }
+
+        for (List<String> list : inputWorker) {
+            try {
+                for (int i = 0; i < Integer.parseInt(list.get(1)); i++) {
+                    List<Storage> input = new ArrayList<>();
+                    for (int j = 3; j < list.size(); j++) {
+                        input.add(storageMap.get(Integer.parseInt(list.get(j))));
                     }
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-                         InvocationTargetException e) {
-                    throw new RuntimeException(e);
+                    Class<?> clazz = Class.forName(list.getFirst());
+                    Constructor<?> constructor = clazz.getDeclaredConstructor(Storage.class, List.class);
+                    FactoryThread object = (FactoryThread) constructor.newInstance(storageMap.get(Integer.parseInt(list.get(2))), input);
+                    listOfThreads.add(object);
+                    executorService.submit(object);
                 }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for (List<String> list : inputSupplier) {
+            try {
+                for (int i = 0; i < Integer.parseInt(list.get(1)); i++) {
+                    Class<?> clazz = Class.forName(list.getFirst());
+                    Constructor<?> constructor = clazz.getDeclaredConstructor(Storage.class);
+                    FactoryThread object = (FactoryThread) constructor.newInstance(storageMap.get(Integer.parseInt(list.get(2))));
+                    listOfThreads.add(object);
+                    executorService.submit(object);
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        for (List<String> list : inputDealer) {
+            try {
+                for (int i = 0; i < Integer.parseInt(list.get(1)); i++) {
+                    Class<?> clazz = Class.forName(list.getFirst());
+                    Constructor<?> constructor = clazz.getDeclaredConstructor(Storage.class);
+                    FactoryThread object = (FactoryThread) constructor.newInstance(storageMap.get(Integer.parseInt(list.get(2))));
+                    listOfThreads.add(object);
+                    listOfDealers.add(object);
+                    executorService.submit(object);
+                }
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
+                     InvocationTargetException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -116,8 +178,8 @@ public class Model {
     public void addInputList(List<String> list) {
         this.inputList.add(list);
     }
-    public Map<String, Storage> getStorageList() {
-        return storageList;
+    public Map<Integer, Storage> getStorageList() {
+        return storageMap;
     }
     public double getEngineTimeout() {
         return engineTimeout;

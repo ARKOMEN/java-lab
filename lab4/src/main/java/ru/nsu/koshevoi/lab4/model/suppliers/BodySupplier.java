@@ -8,8 +8,8 @@ import java.util.UUID;
 
 public class BodySupplier extends Supplier{
 
-    public BodySupplier(int timeout, Storage storage){
-        super(timeout, storage);
+    public BodySupplier(Storage storage){
+        super(storage);
         type = TypeOfThread.bodySupplier;
     }
 

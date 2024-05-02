@@ -21,10 +21,9 @@ public abstract class Dealer extends FactoryThread {
         this.timeout = timeout;
     }
 
-    protected double timeout;
+    protected double timeout = 10;
     protected CarWarehouse storage;
-    public Dealer(int timeout, Storage storage){
-        this.timeout = timeout;
+    public Dealer(Storage storage){
         this.storage = (CarWarehouse) storage;
         UUID uuid = UUID.randomUUID();
         id = uuid.toString();

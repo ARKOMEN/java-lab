@@ -9,14 +9,20 @@ public abstract class Storage {
     private final int size;
     protected Queue<Item> list;
     private final StorageType type;
+
+    public Controller getController() {
+        return controller;
+    }
+
+    protected Controller controller;
     public Storage(int size, StorageType type){
         this.size = size;
         this.list = new LinkedBlockingQueue<>(size);
         this.type = type;
     }
 
-    public void set(Item item){
-        list.add(item);
+    public boolean set(Item item){
+        return list.add(item);
     }
     public Item get() {
         return list.poll();
@@ -24,13 +30,14 @@ public abstract class Storage {
     public boolean full(){
         return size == list.size();
     }
-    public synchronized boolean empty(){
-        return list.isEmpty();
-    }
     public StorageType getType() {
         return type;
     }
     public int getSize(){
         return list.size();
+    }
+
+    public void setController(Controller controller){
+        this.controller = controller;
     }
 }

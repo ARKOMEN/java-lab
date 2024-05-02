@@ -8,7 +8,6 @@ import ru.nsu.koshevoi.lab4.model.cars.and.parts.Engine;
 import ru.nsu.koshevoi.lab4.model.storages.and.warehouses.*;
 
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 public class Workman extends Worker{
@@ -17,18 +16,17 @@ public class Workman extends Worker{
     private final AccessoriesWarehouse accessoriesWarehouse;
 
     int n = 0;
-    public Workman(int timeout, Storage storage){
-        super(timeout, storage);
-        Map<String, Storage> map = model.getStorageList();
-        bodyStorage = (BodyStorage) map.get("ru.nsu.koshevoi.lab4.model.storages.and.warehouses.BodyStorage");
-        engineWarehouse = (EngineWarehouse) map.get("ru.nsu.koshevoi.lab4.model.storages.and.warehouses.EngineWarehouse");
-        accessoriesWarehouse = (AccessoriesWarehouse) map.get("ru.nsu.koshevoi.lab4.model.storages.and.warehouses.AccessoriesWarehouse");
+    public Workman(Storage outputStorage, List<Storage> inputStorage){
+        super(outputStorage);
+        bodyStorage = (BodyStorage) inputStorage.getFirst();
+        engineWarehouse = (EngineWarehouse) inputStorage.get(1);
+        accessoriesWarehouse = (AccessoriesWarehouse) inputStorage.get(2);
     }
 
     @Override
     public void run(){
         while(true){
-            if(model.isFlagForWorkers()) {
+            if(((ControllerCar)storage.getController()).isFlag()) {
                 work();
             }
         }
@@ -52,6 +50,12 @@ public class Workman extends Worker{
         car.setAccessoryId(accessory.getid());
         car.setEngineId(engine.getid());
         car.setBodyId(body.getid());
-        carWarehouse.set(car);
+        while(!storage.set(car)){
+            try {
+                sleep(1000L);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }
