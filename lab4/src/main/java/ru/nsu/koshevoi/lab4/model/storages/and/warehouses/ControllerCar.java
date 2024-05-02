@@ -9,7 +9,7 @@ public class ControllerCar implements Controller {
         return flag;
     }
 
-    private boolean flag = true;
+    volatile private boolean flag = true;
     public ControllerCar(Storage storage){
         this.carWarehouse = (CarWarehouse) storage;
     }

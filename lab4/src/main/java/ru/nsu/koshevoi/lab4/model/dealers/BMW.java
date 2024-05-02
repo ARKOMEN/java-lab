@@ -32,11 +32,9 @@ public class BMW extends Dealer{
 
     public void work() throws InterruptedException {
         Car car = (Car) storage.get();
-        if(car != null) {
-            System.out.println(LocalTime.now() + " dealer id: " + id + ": Auto " + car.getid() + " (Body: " + car.getBodyId() + ", Motor: " +
-                    car.getEngineId() + ", Accessory: " + car.getAccessoryId());
-            result++;
-        }
+        System.out.println(LocalTime.now() + " dealer id: " + id + ": Auto " + car.getid() + " (Body: " + car.getBodyId() + ", Motor: " +
+                car.getEngineId() + ", Accessory: " + car.getAccessoryId());
+        result++;
         try {
             sleep((long) (timeout * 1000L));
         } catch (InterruptedException e) {

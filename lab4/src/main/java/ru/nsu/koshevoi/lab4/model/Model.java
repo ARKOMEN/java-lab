@@ -175,9 +175,7 @@ public class Model {
     public long getTimeout(){
         return 10;
     }
-    public void addInputList(List<String> list) {
-        this.inputList.add(list);
-    }
+
     public Map<Integer, Storage> getStorageList() {
         return storageMap;
     }

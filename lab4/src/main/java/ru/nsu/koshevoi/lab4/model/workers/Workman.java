@@ -27,35 +27,24 @@ public class Workman extends Worker{
     public void run(){
         while(true){
             if(((ControllerCar)storage.getController()).isFlag()) {
-                work();
+                try {
+                    work();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
             }
         }
     }
 
-    private void work() {
-        Body body = null;
-        Engine engine = null;
-        Accessory accessory = null;
-        while(body == null){
-            body = (Body) bodyStorage.get();
-        }
-        while(engine == null){
-            engine = (Engine) engineWarehouse.get();
-        }
-        while(accessory == null){
-            accessory = (Accessory) accessoriesWarehouse.get();
-        }
+    private void work() throws InterruptedException {
+        Body body = (Body) bodyStorage.get();
+        Engine engine = (Engine) engineWarehouse.get();
+        Accessory accessory = (Accessory) accessoriesWarehouse.get();
         UUID uuid = UUID.randomUUID();
         Car car = new Car(uuid.toString());
         car.setAccessoryId(accessory.getid());
         car.setEngineId(engine.getid());
         car.setBodyId(body.getid());
-        while(!storage.set(car)){
-            try {
-                sleep(1000L);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        }
+        storage.set(car);
     }
 }

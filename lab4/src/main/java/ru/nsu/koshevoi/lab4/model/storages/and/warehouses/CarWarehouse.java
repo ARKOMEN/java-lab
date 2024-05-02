@@ -8,10 +8,9 @@ public class CarWarehouse extends Storage{
     }
 
     @Override
-    public Item get() {
-        Item item = list.poll();
-        if (item != null)
-            controller.newTask();
+    public Item get() throws InterruptedException {
+        Item item = list.take();
+        controller.newTask();
         return item;
     }
 }

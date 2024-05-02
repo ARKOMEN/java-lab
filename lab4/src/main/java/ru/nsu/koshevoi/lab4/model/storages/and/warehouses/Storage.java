@@ -2,12 +2,12 @@ package ru.nsu.koshevoi.lab4.model.storages.and.warehouses;
 
 import ru.nsu.koshevoi.lab4.model.cars.and.parts.Item;
 
-import java.util.Queue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 public abstract class Storage {
     private final int size;
-    protected Queue<Item> list;
+    protected BlockingQueue<Item> list;
     private final StorageType type;
 
     public Controller getController() {
@@ -21,11 +21,11 @@ public abstract class Storage {
         this.type = type;
     }
 
-    public boolean set(Item item){
-        return list.add(item);
+    public void set(Item item) throws InterruptedException {
+        list.put(item);
     }
-    public Item get() {
-        return list.poll();
+    public Item get() throws InterruptedException {
+        return list.take();
     }
     public boolean full(){
         return size == list.size();
