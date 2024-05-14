@@ -19,14 +19,15 @@ public class ClientHandler extends Thread{
             PrintWriter writer = new PrintWriter(socket.getOutputStream(), true)){
 
             String clientMessage;
-            while((clientMessage = reader.readLine()) != null){
-                System.out.println("Сообщение от клиента " + clientMessage);
+            while((clientMessage = reader.readLine()) != null || socket != null){
+                //System.out.println("Сообщение от клиента " + clientMessage);
                 writer.println("Эхо: " + clientMessage);
             }
         } catch (IOException e){
             System.out.println("ошибка в работе с клиентом " + e.getMessage());
         } finally {
             try{
+                System.out.println('1');
                 socket.close();
             }catch (IOException e){
                 System.out.println("Ошибка при закрытии сокета: " + e.getMessage());

@@ -18,8 +18,8 @@ public class Client {
         try(Socket socket = new Socket(hostname, port)){
             System.out.println("подключен к чату");
 
-            new ReadThread();
-            new WriteThread();
+            new ReadThread(socket, this).start();
+            new WriteThread(socket, this).start();
         }catch (UnknownHostException ex){
             System.out.println("Сервер не найден: " + ex.getMessage());
         }catch (IOException ex){
@@ -36,10 +36,9 @@ public class Client {
     }
 
     public static void main(String[] args) {
-        if(args.length < 2) return;
 
-        String hostname = args[0];
-        int port = Integer.parseInt(args[1]);
+        String hostname = "localhost";
+        int port = 1235;
 
         Client client = new Client(hostname, port);
         client.execute();
