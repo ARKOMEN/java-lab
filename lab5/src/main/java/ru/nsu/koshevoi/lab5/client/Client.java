@@ -1,5 +1,8 @@
 package ru.nsu.koshevoi.lab5.client;
 
+import ru.nsu.koshevoi.lab5.ChatClientApp;
+import ru.nsu.koshevoi.lab5.server.ClientHandler;
+
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
@@ -8,17 +11,17 @@ public class Client {
     private String hostname;
     private int port;
     private String userName;
+    private ChatClientApp chatClientApp;
 
-    public Client(String hostname, int port){
+    public Client(String hostname, int port, ChatClientApp chatClientApp){
         this.hostname = hostname;
         this.port = port;
+        this.chatClientApp = chatClientApp;
     }
 
     public void execute(){
-        try(Socket socket = new Socket(hostname, port)){
-            System.out.println("подключен к чату");
-
-            new ReadThread(socket, this).start();
+        try{
+            Socket socket = new Socket(hostname, port);
             new WriteThread(socket, this).start();
         }catch (UnknownHostException ex){
             System.out.println("Сервер не найден: " + ex.getMessage());
@@ -35,12 +38,7 @@ public class Client {
         return this.userName;
     }
 
-    public static void main(String[] args) {
+    public void sendMessage(String message){
 
-        String hostname = "localhost";
-        int port = 1235;
-
-        Client client = new Client(hostname, port);
-        client.execute();
     }
 }

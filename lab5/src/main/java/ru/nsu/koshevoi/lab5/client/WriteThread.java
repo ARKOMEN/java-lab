@@ -1,13 +1,12 @@
 package ru.nsu.koshevoi.lab5.client;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
 public class WriteThread extends Thread{
     private PrintWriter writer;
+    private BufferedReader reader;
     private Socket socket;
     private Client client;
 
@@ -18,6 +17,7 @@ public class WriteThread extends Thread{
         try{
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         }catch (IOException e){
             System.out.println("Ошибка получения выходного потока: " + e.getMessage());
             e.printStackTrace();
@@ -27,20 +27,47 @@ public class WriteThread extends Thread{
     @Override
     public void run(){
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Введите ваше имя: ");
-        String userName = scanner.nextLine();
-        client.setUserName(userName);
-        writer.println(userName);
-
         String text;
 
-        do{
-            text = scanner.nextLine();
-            writer.println(text);
-        }while (!text.equals("exit"));
+        System.out.print("Enter your username: ");
+        String username = scanner.nextLine();
+        System.out.print("Enter your password: ");
+        String password = scanner.nextLine();
+
+        writer.println("<command name=\"login\">" +
+                "<name>" + username + "</name>" +
+                "<password>" + password + "</password>" +
+                "</command>");
+
+        try {
+            String serverResponse = reader.readLine();
+            if(serverResponse != null && serverResponse.contains("<success>")){
+                System.out.println("Успешный вход в систему");
+                client.setUserName(username);
+
+                ReadThread readThread = new ReadThread(socket, client);
+                readThread.start();
+                while (true){
+                    text = scanner.nextLine();
+                    if("list".equals(text)){
+                        writer.println("<command name=\"list\"></command>");
+                    } else if ("logout".equals(text)) {
+                        readThread.shutdown();
+                        writer.println("<command name=\"logout\"></command>");
+                        break;
+                    } else {
+                        writer.println("<command name=\"message\"><message>" + text + "</message></command>");
+                    }
+                    if(text.equals("exit"))
+                        break;
+                }
+            }
+        }catch (IOException e) {
+            System.out.println("Ошибка входа: " + e.getMessage());
+            e.printStackTrace();
+        }
 
         try{
-            System.out.println('2');
             socket.close();
         }catch (IOException e){
             System.out.println("Ошибка при закрытии сокета: " + e.getMessage());

@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 public class Server {
     private int port;
     private ExecutorService executorService;
+    private static UserStore userStore = new UserStore();
 
     public Server(int port){
         this.port = port;
@@ -22,7 +23,7 @@ public class Server {
             while(true){
                 Socket socket = serverSocket.accept();
                 System.out.println("Новое подключение: " + socket.getInetAddress());
-                executorService.execute(new ClientHandler(socket));
+                new ClientHandler(socket, userStore).start();
             }
         }catch (IOException e){
             System.out.println("Ошибка при работе сервера: " + e.getMessage());
@@ -30,7 +31,7 @@ public class Server {
     }
 
     public static void main(String[] args){
-        int port = 1235;
+        int port = 8080;
         Server server = new Server(port);
         server.start();
     }
