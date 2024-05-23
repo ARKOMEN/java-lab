@@ -26,10 +26,12 @@ public class WriteThread extends Thread {
     }
 
     public void sendLogin(String username, String password) {
-        writer.println("<command name=\"login\">" +
+        String msg = "<command name=\"login\">" +
                 "<name>" + username + "</name>" +
                 "<password>" + password + "</password>" +
-                "</command>");
+                "</command>";
+        int length = msg.length();
+        writer.println(Integer.toString(length) + msg);
     }
 
     public void sendMessage(String message) {
@@ -55,12 +57,14 @@ public class WriteThread extends Thread {
     }
 
     public void sendUpload(String fileName, String mimeType, String encodedContent){
-        writer.println("<command name=\"upload\">" +
+        String msg = "<command name=\"upload\">" +
                 "<name>" + fileName + "</name>" +
                 "<mimeType>" + mimeType + "</mimeType>" +
                 "<encoding>base64</encoding>" +
                 "<content>" + encodedContent + "</content>" +
-                "</command>");
+                "</command>";
+        int length = msg.length();
+        writer.println(Integer.toString(length) + msg);
     }
 
     @Override
@@ -68,9 +72,9 @@ public class WriteThread extends Thread {
         String text;
         Scanner scanner = new Scanner(System.in);
         try {
+            
             String serverResponse = reader.readLine();
             if (serverResponse != null && serverResponse.contains("<success>")) {
-                System.out.println("Успешный вход в систему");
                 client.setUserName(client.getUserName());
 
                 readThread = new ReadThread(socket, client);

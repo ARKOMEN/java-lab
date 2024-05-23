@@ -15,6 +15,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.util.SplittableRandom;
 
 import static java.lang.System.exit;
 
@@ -29,8 +30,12 @@ public class ChatClientApp extends Application {
     private Button uploadButton;
     private Stage primaryStage;
     private VBox chatLayout;
+    private static int port;
+    private static String ip;
 
     public static void main(String[] args) {
+        port = Integer.parseInt(args[1]);
+        ip = args[0];
         launch(args);
     }
 
@@ -123,9 +128,7 @@ public class ChatClientApp extends Application {
     }
 
     private void initializeClient(String username, String password) {
-        String hostname = "localhost";
-        int port = 8080;
-        client = new Client(hostname, port, this, username, password);
+        client = new Client(ip, port, this, username, password);
         client.execute();
     }
 

@@ -13,6 +13,8 @@ public class Client {
     private ChatClientApp chatClientApp;
     private WriteThread writeThread;
 
+    private boolean running = true;
+
     public Client(String hostname, int port, ChatClientApp chatClientApp, String userName, String password) {
         this.hostname = hostname;
         this.port = port;
@@ -24,10 +26,19 @@ public class Client {
     public void execute() {
         try {
             Socket socket = new Socket(hostname, port);
+            System.out.println(socket.getInetAddress());
+            System.out.println(socket.getPort());
             writeThread = new WriteThread(socket, this);
             writeThread.start();
-
             writeThread.sendLogin(userName, password);
+            writeThread.run();
+            /*
+            if(!running){
+                try{
+                    socket.close();
+                }catch (IOException e){
+                }
+            }*/
         } catch (UnknownHostException ex) {
             System.out.println("Сервер не найден: " + ex.getMessage());
         } catch (IOException ex) {
@@ -83,6 +94,14 @@ public class Client {
 
     public void saveFile(String fileName, byte[] fileContent) {
         chatClientApp.saveFile(fileName, fileContent);
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public boolean isRunning() {
+        return running;
     }
 
     public static void main(String[] args) {

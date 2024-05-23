@@ -58,6 +58,8 @@ public class ReadThread extends Thread{
                     } else {
                         System.out.println("\n" + response);
                     }
+                }else{
+                    client.setRunning(false);
                 }
             }catch (IOException e){
                 if(running) {
