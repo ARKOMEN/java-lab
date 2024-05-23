@@ -4,48 +4,76 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class WriteThread extends Thread{
+public class WriteThread extends Thread {
     private PrintWriter writer;
     private BufferedReader reader;
     private Socket socket;
     private Client client;
+    private ReadThread readThread;
 
-    public WriteThread(Socket socket, Client client){
+    public WriteThread(Socket socket, Client client) {
         this.socket = socket;
         this.client = client;
 
-        try{
+        try {
             OutputStream output = socket.getOutputStream();
             writer = new PrintWriter(output, true);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Ошибка получения выходного потока: " + e.getMessage());
             e.printStackTrace();
         }
     }
 
-    @Override
-    public void run(){
-        Scanner scanner = new Scanner(System.in);
-        String text;
-
-        System.out.print("Enter your username: ");
-        String username = scanner.nextLine();
-        System.out.print("Enter your password: ");
-        String password = scanner.nextLine();
-
+    public void sendLogin(String username, String password) {
         writer.println("<command name=\"login\">" +
                 "<name>" + username + "</name>" +
                 "<password>" + password + "</password>" +
                 "</command>");
+    }
 
+    public void sendMessage(String message) {
+        writer.println("<command name=\"message\"><message>" + message + "</message></command>");
+    }
+
+    public void sendDownloadRequest(String fileId) {
+        writer.println("<command name=\"download\"><id>" + fileId + "</id></command>");
+    }
+
+    public void sendListRequest() {
+        writer.println("<command name=\"list\"></command>");
+    }
+
+    public void sendLogout() {
+        writer.println("<command name=\"logout\"></command>");
+        readThread.shutdown();
+        try{
+            socket.close();
+        }catch (IOException e){
+            System.out.println("Ошибка при закрытии сокета: " + e.getMessage());
+        }
+    }
+
+    public void sendUpload(String fileName, String mimeType, String encodedContent){
+        writer.println("<command name=\"upload\">" +
+                "<name>" + fileName + "</name>" +
+                "<mimeType>" + mimeType + "</mimeType>" +
+                "<encoding>base64</encoding>" +
+                "<content>" + encodedContent + "</content>" +
+                "</command>");
+    }
+
+    @Override
+    public void run() {
+        String text;
+        Scanner scanner = new Scanner(System.in);
         try {
             String serverResponse = reader.readLine();
-            if(serverResponse != null && serverResponse.contains("<success>")){
+            if (serverResponse != null && serverResponse.contains("<success>")) {
                 System.out.println("Успешный вход в систему");
-                client.setUserName(username);
+                client.setUserName(client.getUserName());
 
-                ReadThread readThread = new ReadThread(socket, client);
+                readThread = new ReadThread(socket, client);
                 readThread.start();
                 while (true){
                     text = scanner.nextLine();
@@ -62,14 +90,14 @@ public class WriteThread extends Thread{
                         break;
                 }
             }
-        }catch (IOException e) {
+        } catch (IOException e) {
             System.out.println("Ошибка входа: " + e.getMessage());
             e.printStackTrace();
         }
 
-        try{
+        try {
             socket.close();
-        }catch (IOException e){
+        } catch (IOException e) {
             System.out.println("Ошибка при закрытии сокета: " + e.getMessage());
         }
     }

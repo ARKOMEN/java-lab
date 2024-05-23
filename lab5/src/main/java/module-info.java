@@ -11,6 +11,7 @@ module ru.nsu.koshevoi.lab5 {
     requires eu.hansolo.tilesfx;
     requires com.almasb.fxgl.all;
     requires java.naming;
+    requires java.logging;
 
     opens ru.nsu.koshevoi.lab5 to javafx.fxml;
     exports ru.nsu.koshevoi.lab5;

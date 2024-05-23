@@ -9,6 +9,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.Base64;
 
 public class ReadThread extends Thread{
     private BufferedReader reader;
@@ -48,10 +49,13 @@ public class ReadThread extends Thread{
                         handleUserLogin(response);
                     } else if (response.startsWith("<event name=\"userlogout\">")) {
                         handleUserLogout(response);
-                    }else if(response.startsWith("<event name=\"recentMessages\">")){
+                    }else if(response.startsWith("<event name=\"recentMessages\">")) {
                         handleRecentMessages(response);
-                    }
-                    else {
+                    }else if (response.startsWith("<event name=\"file\">")) {
+                        handleFileEvent(response);
+                    } else if (response.startsWith("<success><id>")) {
+                        handleFileDownload(response);
+                    } else {
                         System.out.println("\n" + response);
                     }
                 }
@@ -74,7 +78,7 @@ public class ReadThread extends Thread{
             Document doc = builder.parse(is);
 
             String userName = doc.getElementsByTagName("name").item(0).getTextContent();
-            System.out.println("Пользователь " + userName + " вышел из чата.");
+            client.displayMessage("Пользователь " + userName + " вышел из чата.");
         }catch (Exception e){
             System.out.println("Ошибка обработки уведомления об отключении пользователя: " + e.getMessage());
         }
@@ -88,7 +92,7 @@ public class ReadThread extends Thread{
             Document doc = builder.parse(is);
 
             String userName = doc.getElementsByTagName("name").item(0).getTextContent();
-            System.out.println("Пользователь " + userName + " вошел в чат.");
+            client.displayMessage("Пользователь " + userName + " вошел в чат.");
         }catch (Exception e){
             System.out.println("Ошибка обработки уведомления о новом пользователе: " + e.getMessage());
             e.printStackTrace();
@@ -104,7 +108,7 @@ public class ReadThread extends Thread{
 
             String message = doc.getElementsByTagName("message").item(0).getTextContent();
 
-            System.out.println(message);
+            client.displayMessage(message);
         }catch (Exception e){
             System.out.println("Ошибка обработки сообщения: " + e.getMessage());
             e.printStackTrace();
@@ -119,12 +123,13 @@ public class ReadThread extends Thread{
             Document doc = builder.parse(is);
 
             NodeList userNodes = doc.getElementsByTagName("user");
-            System.out.println("Список пользователей в чате: ");
+            StringBuilder users = new StringBuilder("Список пользователей в чате:\n");
             for(int i = 0; i < userNodes.getLength(); i++){
                 Element userElement = (Element) userNodes.item(i);
                 String userName = userElement.getElementsByTagName("name").item(0).getTextContent();
-                System.out.println(" - " + userName);
+                users.append(" - ").append(userName).append("\n");
             }
+            client.displayMessage(users.toString());
         }catch (Exception e){
             System.out.println("Ошибка обработки списка пользователей: " + e.getMessage());
             e.printStackTrace();
@@ -161,10 +166,59 @@ public class ReadThread extends Thread{
             System.out.println("История сообщений:");
             for(int i = 0; i < messageNodes.getLength(); i++){
                 String message = messageNodes.item(i).getTextContent();
-                System.out.println(message);
+                client.displayMessage(message);
             }
         }catch (Exception e){
             System.out.println("Ошибка обработки истории сообщений: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleFileEvent(String response) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputStream is = new ByteArrayInputStream(response.getBytes());
+            Document doc = builder.parse(is);
+
+            String id = doc.getElementsByTagName("id").item(0).getTextContent();
+            String from = doc.getElementsByTagName("from").item(0).getTextContent();
+            String name = doc.getElementsByTagName("name").item(0).getTextContent();
+            String size = doc.getElementsByTagName("size").item(0).getTextContent();
+            String mimeType = doc.getElementsByTagName("mimeType").item(0).getTextContent();
+
+            String message = "Пользователь " + from + " отправил файл: " + name + " (" + size + " байт, " + mimeType + ")";
+            client.displayMessage(message);
+
+            client.notifyFileReceived(id, name);
+        } catch (Exception e) {
+            System.out.println("Ошибка обработки уведомления о новом файле: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void handleFileDownload(String response) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            InputStream is = new ByteArrayInputStream(response.getBytes());
+            Document doc = builder.parse(is);
+
+            String id = doc.getElementsByTagName("id").item(0).getTextContent();
+            String name = doc.getElementsByTagName("name").item(0).getTextContent();
+            String mimeType = doc.getElementsByTagName("mimeType").item(0).getTextContent();
+            String encoding = doc.getElementsByTagName("encoding").item(0).getTextContent();
+            String content = doc.getElementsByTagName("content").item(0).getTextContent();
+
+            if ("base64".equals(encoding)) {
+                byte[] fileContent = Base64.getDecoder().decode(content);
+
+                client.saveFile(name, fileContent);
+            } else {
+                client.displayMessage("Ошибка: Неподдерживаемое кодирование файла");
+            }
+        } catch (Exception e) {
+            System.out.println("Ошибка обработки скачивания файла: " + e.getMessage());
             e.printStackTrace();
         }
     }

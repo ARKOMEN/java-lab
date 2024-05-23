@@ -8,11 +8,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.Socket;
+import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.UUID;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientHandler extends Thread{
     private Socket socket;
@@ -24,10 +28,13 @@ public class ClientHandler extends Thread{
     public static final int HISTORY_SIZE = 10;
     private String username;
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private Server server;
+    private static final Logger log = Logger.getLogger(ClientHandler.class.getName());
 
-    public ClientHandler(Socket socket, UserStore userStore){
+    public ClientHandler(Socket socket, UserStore userStore, Server server){
         this.socket = socket;
         this.userStore = userStore;
+        this.server = server;
     }
 
     @Override
@@ -120,8 +127,11 @@ public class ClientHandler extends Thread{
                     writer.flush();
                     socket.close();
                     return;
-                }
-                else {
+                }else if("upload".equals(commandName)){
+                    handleFileUpload(message);
+                }else if("download".equals(commandName)){
+                    handleFileDownload(message);
+                } else {
                     writer.println("<error><message>Invalid command</message></error>");
                 }
             }
@@ -183,7 +193,7 @@ public class ClientHandler extends Thread{
 
     private void handleInactivity(){
         if(loggedIn){
-            System.out.println("Пользователь " + username + " отключен из-за бездействия.");
+            log.info("Пользователь " + username + " отключен из-за бездействия.");
             handleLogout();
             try {
                 socket.close();
@@ -206,5 +216,79 @@ public class ClientHandler extends Thread{
         }
         response.append("</event>");
         writer.println(response.toString());
+    }
+
+    private void handleFileUpload(String message) {
+        try {
+            String fileName = extractTagValue(message, "name");
+            String mimeType = extractTagValue(message, "mimeType");
+            String encoding = extractTagValue(message, "encoding");
+            String content = extractTagValue(message, "content");
+
+            if ("base64".equals(encoding)) {
+                byte[] fileContent = Base64.getDecoder().decode(content);
+
+                String fileId = UUID.randomUUID().toString();
+
+                FileData fileData = new FileData(fileId, fileName, mimeType, fileContent);
+                server.getFiles().put(fileId, fileData);
+
+                writer.println("<success><id>" + fileId + "</id></success>");
+
+                String fileEvent = "<event name=\"file\">" +
+                        "<id>" + fileId + "</id>" +
+                        "<from>" + socket.getInetAddress().getHostAddress() + "</from>" +
+                        "<name>" + fileName + "</name>" +
+                        "<size>" + fileContent.length + "</size>" +
+                        "<mimeType>" + mimeType + "</mimeType>" +
+                        "</event>";
+
+                broadcast(fileEvent);
+            } else {
+                writer.println("<error><message>Unsupported encoding</message></error>");
+            }
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Ошибка при обработке загрузки файла", e);
+            writer.println("<error><message>Server error</message></error>");
+        }
+    }
+
+    private void handleFileDownload(String message) {
+        try {
+            String fileId = extractTagValue(message, "id");
+            FileData fileData = server.getFiles().get(fileId);
+
+            if (fileData != null) {
+                String encodedContent = Base64.getEncoder().encodeToString(fileData.getContent());
+                writer.println("<success>" +
+                        "<id>" + fileData.getId() + "</id>" +
+                        "<name>" + fileData.getName() + "</name>" +
+                        "<mimeType>" + fileData.getMimeType() + "</mimeType>" +
+                        "<encoding>base64</encoding>" +
+                        "<content>" + encodedContent + "</content>" +
+                        "</success>");
+            } else {
+                writer.println("<error><message>File not found</message></error>");
+            }
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Ошибка при обработке запроса на скачивание файла", e);
+            writer.println("<error><message>Server error</message></error>");
+        }
+    }
+
+    private String extractTagValue(String message, String tagName) {
+        String startTag = "<" + tagName + ">";
+        String endTag = "</" + tagName + ">";
+        int startIndex = message.indexOf(startTag) + startTag.length();
+        int endIndex = message.indexOf(endTag);
+        return message.substring(startIndex, endIndex);
+    }
+
+    private void broadcast(String message) {
+        for (ClientHandler clientHandler : clients) {
+            if (clientHandler != this && clientHandler.loggedIn) {
+                clientHandler.writer.println(message);
+            }
+        }
     }
 }
