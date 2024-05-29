@@ -8,6 +8,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -22,7 +23,6 @@ public class ClientHandler extends Thread{
     private Socket socket;
     private UserStore userStore;
     private boolean loggedIn = false;
-    private PrintWriter writer;
     private static List<ClientHandler> clients = new CopyOnWriteArrayList<>();
     private static List<String> messageHistory = new CopyOnWriteArrayList<>();
     public static final int HISTORY_SIZE = 10;
@@ -30,6 +30,8 @@ public class ClientHandler extends Thread{
     private ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private Server server;
     private static final Logger log = Logger.getLogger(ClientHandler.class.getName());
+    private DataInputStream dataInputStream;
+    private DataOutputStream dataOutputStream;
 
     public ClientHandler(Socket socket, UserStore userStore, Server server){
         this.socket = socket;
@@ -39,37 +41,45 @@ public class ClientHandler extends Thread{
 
     @Override
     public void run(){
-        try(BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()))){
-            writer = new PrintWriter(socket.getOutputStream(), true);
+        try{
+
+            dataInputStream = new DataInputStream(socket.getInputStream());
+            dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
             clients.add(this);
 
             resetInactivityTimer();
 
-            String clientMessage;
-            while((clientMessage = reader.readLine()) != null){
+            while(true){
+                int messageLength = dataInputStream.readInt();
+                byte[] messageBytes = new byte[messageLength];
+                dataInputStream.readFully(messageBytes);
+
+                String clientMessage = new String(messageBytes);
                 resetInactivityTimer();
 
                 if(!loggedIn) {
-                    if (!processLogin(clientMessage, writer)) {
-                        writer.println("<error><message>Login required</message></error>");
+                    if (!processLogin(clientMessage)) {
+                        sendMessage("<error><message>Login required</message></error>");
                     }
                 }else{
                     processCommand(clientMessage);
                 }
             }
         } catch (IOException e){
-
+            log.log(Level.SEVERE, "Ошибка в работе с клиетом", e);
         } finally {
             handleLogout();
             try {
                 socket.close();
-            }catch (IOException e){}
+            }catch (IOException e){
+                log.log(Level.SEVERE, "Ошибка при закрытии сокета", e);
+            }
         }
 
     }
 
-    private boolean processLogin(String message, PrintWriter writer){
+    private boolean processLogin(String message){
         try{
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
@@ -86,18 +96,18 @@ public class ClientHandler extends Thread{
                     String password = commandElement.getElementsByTagName("password").item(0).getTextContent();
 
                     if(userStore.loginUser(username, password)){
-                        writer.println("<success></success>");
+                        sendMessage("<success></success>");
                         loggedIn = true;
                         broadcastUserLogin(username);
                         sendRecentMessages();
                     }else {
-                        writer.println("<error><message>Invalid username or password</message></error>");
+                        sendMessage("<error><message>Invalid username or password</message></error>");
                     }
                     return true;
                 }
             }
         }catch (Exception e){
-            writer.println("<error><message>Invalid login format</message></error>");
+            sendMessage("<error><message>Invalid login format</message></error>");
             e.printStackTrace();
         }
         return false;
@@ -120,11 +130,10 @@ public class ClientHandler extends Thread{
                 } else if ("message".equals(commandName)) {
                     String chatMessage = commandElement.getElementsByTagName("message").item(0).getTextContent();
                     broadcastMessage(username + ": " + chatMessage);
-                    writer.println("<success></success>");
+                    sendMessage("<success></success>");
                 }else if("logout".equals(commandName)){
                     handleLogout();
-                    writer.println("<success></success>");
-                    writer.flush();
+                    sendMessage("<success></success>");
                     socket.close();
                     return;
                 }else if("upload".equals(commandName)){
@@ -132,11 +141,11 @@ public class ClientHandler extends Thread{
                 }else if("download".equals(commandName)){
                     handleFileDownload(message);
                 } else {
-                    writer.println("<error><message>Invalid command</message></error>");
+                    sendMessage("<error><message>Invalid command</message></error>");
                 }
             }
         }catch (Exception e){
-            writer.println("<error><message>Invalid command format</message></error>");
+            sendMessage("<error><message>Invalid command format</message></error>");
             e.printStackTrace();
         }
     }
@@ -157,7 +166,7 @@ public class ClientHandler extends Thread{
             }
         }
         response.append("</users></success>");
-        writer.println(response.toString());
+        sendMessage(response.toString());
     }
 
     private void broadcastMessage(String message){
@@ -167,10 +176,13 @@ public class ClientHandler extends Thread{
                 messageHistory.removeFirst();
             }
         }
+        byte[] messageBytes = message.getBytes(StandardCharsets.UTF_8);
+        int length = messageBytes.length;
+
         for(ClientHandler clientHandler : clients){
             if(clientHandler.loggedIn){
                 String formattedMessage = "<event name=\"message\"><from>" + username + "</from><message>" + message + "</message></event>";
-                clientHandler.writer.println(formattedMessage);
+                clientHandler.sendMessage(formattedMessage);
             }
         }
     }
@@ -178,7 +190,7 @@ public class ClientHandler extends Thread{
     private void broadcastUserLogin(String username){
         for (ClientHandler client : clients){
             if(client.loggedIn && client != this){
-                client.writer.println("<event name=\"userlogin\"><name>" + username + "</name></event>");
+                client.sendMessage("<event name=\"userlogin\"><name>" + username + "</name></event>");
             }
         }
     }
@@ -186,7 +198,7 @@ public class ClientHandler extends Thread{
     private void broadcastUserLogout(String username){
         for(ClientHandler client : clients){
             if(client.loggedIn && client != this){
-                client.writer.println("<event name=\"userlogout\"><name>" + username + "</name></event>");
+                client.sendMessage("<event name=\"userlogout\"><name>" + username + "</name></event>");
             }
         }
     }
@@ -215,7 +227,7 @@ public class ClientHandler extends Thread{
             }
         }
         response.append("</event>");
-        writer.println(response.toString());
+        sendMessage(response.toString());
     }
 
     private void handleFileUpload(String message) {
@@ -233,7 +245,7 @@ public class ClientHandler extends Thread{
                 FileData fileData = new FileData(fileId, fileName, mimeType, fileContent);
                 server.getFiles().put(fileId, fileData);
 
-                writer.println("<success><id>" + fileId + "</id></success>");
+                sendMessage("<success><id>" + fileId + "</id></success>");
 
                 String fileEvent = "<event name=\"file\">" +
                         "<id>" + fileId + "</id>" +
@@ -245,11 +257,11 @@ public class ClientHandler extends Thread{
 
                 broadcast(fileEvent);
             } else {
-                writer.println("<error><message>Unsupported encoding</message></error>");
+                sendMessage("<error><message>Unsupported encoding</message></error>");
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "Ошибка при обработке загрузки файла", e);
-            writer.println("<error><message>Server error</message></error>");
+            sendMessage("<error><message>Server error</message></error>");
         }
     }
 
@@ -260,7 +272,7 @@ public class ClientHandler extends Thread{
 
             if (fileData != null) {
                 String encodedContent = Base64.getEncoder().encodeToString(fileData.getContent());
-                writer.println("<success>" +
+                sendMessage("<success>" +
                         "<id>" + fileData.getId() + "</id>" +
                         "<name>" + fileData.getName() + "</name>" +
                         "<mimeType>" + fileData.getMimeType() + "</mimeType>" +
@@ -268,11 +280,11 @@ public class ClientHandler extends Thread{
                         "<content>" + encodedContent + "</content>" +
                         "</success>");
             } else {
-                writer.println("<error><message>File not found</message></error>");
+                sendMessage("<error><message>File not found</message></error>");
             }
         } catch (Exception e) {
             log.log(Level.SEVERE, "Ошибка при обработке запроса на скачивание файла", e);
-            writer.println("<error><message>Server error</message></error>");
+            sendMessage("<error><message>Server error</message></error>");
         }
     }
 
@@ -287,8 +299,18 @@ public class ClientHandler extends Thread{
     private void broadcast(String message) {
         for (ClientHandler clientHandler : clients) {
             if (clientHandler != this && clientHandler.loggedIn) {
-                clientHandler.writer.println(message);
+                clientHandler.sendMessage(message);
             }
+        }
+    }
+
+    private void sendMessage(String message){
+        try{
+            byte[] messageByte = message.getBytes();
+            dataOutputStream.writeInt(messageByte.length);
+            dataOutputStream.write(messageByte);
+        }catch (IOException e){
+            log.log(Level.SEVERE, "Ошибка при отправке сообщения", e);
         }
     }
 }

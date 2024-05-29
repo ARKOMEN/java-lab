@@ -12,11 +12,12 @@ import java.net.Socket;
 import java.util.Base64;
 
 public class ReadThread extends Thread{
-    private BufferedReader reader;
     private Socket socket;
     private Client client;
 
     private volatile boolean running = true;
+
+    private DataInputStream dataInputStream;
 
     public ReadThread(Socket socket, Client client){
         this.socket = socket;
@@ -24,7 +25,7 @@ public class ReadThread extends Thread{
 
         try{
             InputStream input = socket.getInputStream();
-            reader = new BufferedReader(new InputStreamReader(input));
+            dataInputStream = new DataInputStream(input);
         }catch (IOException e){
             System.out.println("Ошибка получения входного потока: " + e.getMessage());
             e.printStackTrace();
@@ -35,11 +36,11 @@ public class ReadThread extends Thread{
     public void run(){
         while (running){
             try {
-                String response = reader.readLine();
-                if(response == null){
-                    System.out.println("Соединение с сервером потеряно");
-                    break;
-                }
+                int messageLength = dataInputStream.readInt();
+                byte[] messageByte = new byte[messageLength];
+                dataInputStream.readFully(messageByte);
+                String response = new String(messageByte);
+
                 if(!response.equals("<success></success>")) {
                     if (response.startsWith("<success><users>")) {
                         handleUserList(response);
@@ -149,8 +150,8 @@ public class ReadThread extends Thread{
 
     private void cleanup(){
         try{
-            if(reader != null){
-                reader.close();
+            if(dataInputStream != null){
+                dataInputStream.close();
             }
         }catch (IOException e){
             System.out.println("Ошибка при закрытии входного потока: " + e.getMessage());

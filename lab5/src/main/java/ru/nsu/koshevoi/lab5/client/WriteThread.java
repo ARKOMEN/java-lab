@@ -5,11 +5,11 @@ import java.net.Socket;
 import java.util.Scanner;
 
 public class WriteThread extends Thread {
-    private PrintWriter writer;
-    private BufferedReader reader;
     private Socket socket;
     private Client client;
     private ReadThread readThread;
+    private DataOutputStream dataOutputStream;
+    private BufferedReader reader;
 
     public WriteThread(Socket socket, Client client) {
         this.socket = socket;
@@ -17,7 +17,7 @@ public class WriteThread extends Thread {
 
         try {
             OutputStream output = socket.getOutputStream();
-            writer = new PrintWriter(output, true);
+            dataOutputStream = new DataOutputStream(output);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
         } catch (IOException e) {
             System.out.println("Ошибка получения выходного потока: " + e.getMessage());
@@ -30,24 +30,30 @@ public class WriteThread extends Thread {
                 "<name>" + username + "</name>" +
                 "<password>" + password + "</password>" +
                 "</command>";
-        int length = msg.length();
-        writer.println(Integer.toString(length) + msg);
+        sendMessage(msg);
     }
 
     public void sendMessage(String message) {
-        writer.println("<command name=\"message\"><message>" + message + "</message></command>");
+        try{
+            byte[] messageBytes = message.getBytes();
+            dataOutputStream.writeInt(messageBytes.length);
+            dataOutputStream.write(messageBytes);
+        }catch (IOException e){
+            System.out.println("Ошибка отправки сообщения: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     public void sendDownloadRequest(String fileId) {
-        writer.println("<command name=\"download\"><id>" + fileId + "</id></command>");
+        sendMessage("<command name=\"download\"><id>" + fileId + "</id></command>");
     }
 
     public void sendListRequest() {
-        writer.println("<command name=\"list\"></command>");
+        sendMessage("<command name=\"list\"></command>");
     }
 
     public void sendLogout() {
-        writer.println("<command name=\"logout\"></command>");
+        sendMessage("<command name=\"logout\"></command>");
         readThread.shutdown();
         try{
             socket.close();
@@ -63,8 +69,7 @@ public class WriteThread extends Thread {
                 "<encoding>base64</encoding>" +
                 "<content>" + encodedContent + "</content>" +
                 "</command>";
-        int length = msg.length();
-        writer.println(Integer.toString(length) + msg);
+        sendMessage(msg);
     }
 
     @Override
@@ -72,7 +77,7 @@ public class WriteThread extends Thread {
         String text;
         Scanner scanner = new Scanner(System.in);
         try {
-            
+
             String serverResponse = reader.readLine();
             if (serverResponse != null && serverResponse.contains("<success>")) {
                 client.setUserName(client.getUserName());
@@ -82,13 +87,13 @@ public class WriteThread extends Thread {
                 while (true){
                     text = scanner.nextLine();
                     if("list".equals(text)){
-                        writer.println("<command name=\"list\"></command>");
+                        sendListRequest();
                     } else if ("logout".equals(text)) {
                         readThread.shutdown();
-                        writer.println("<command name=\"logout\"></command>");
+                        sendLogout();
                         break;
                     } else {
-                        writer.println("<command name=\"message\"><message>" + text + "</message></command>");
+                        sendMessage("<command name=\"message\"><message>" + text + "</message></command>");
                     }
                     if(text.equals("exit"))
                         break;

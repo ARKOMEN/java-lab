@@ -29,9 +29,8 @@ public class Client {
             System.out.println(socket.getInetAddress());
             System.out.println(socket.getPort());
             writeThread = new WriteThread(socket, this);
-            writeThread.start();
             writeThread.sendLogin(userName, password);
-            writeThread.run();
+            writeThread.start();
             /*
             if(!running){
                 try{
