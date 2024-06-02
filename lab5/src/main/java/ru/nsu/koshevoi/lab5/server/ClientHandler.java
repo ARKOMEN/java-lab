@@ -51,7 +51,12 @@ public class ClientHandler extends Thread{
             resetInactivityTimer();
 
             while(true){
-                int messageLength = dataInputStream.readInt();
+                int messageLength;
+                try {
+                    messageLength = dataInputStream.readInt();
+                }catch (IOException e){
+                    break;
+                }
                 byte[] messageBytes = new byte[messageLength];
                 dataInputStream.readFully(messageBytes);
 
@@ -216,7 +221,7 @@ public class ClientHandler extends Thread{
     private void resetInactivityTimer(){
         scheduler.shutdown();;
         scheduler = Executors.newScheduledThreadPool(1);
-        scheduler.schedule(this::handleInactivity, 1, TimeUnit.MINUTES);
+        scheduler.schedule(this::handleInactivity, 10, TimeUnit.MINUTES);
     }
 
     private void sendRecentMessages(){

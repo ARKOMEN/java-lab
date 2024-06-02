@@ -1,8 +1,12 @@
 package ru.nsu.koshevoi.lab5.client;
 
+import ru.nsu.koshevoi.lab5.ChatClientApp;
+
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
+
+import static java.lang.System.exit;
 
 public class WriteThread extends Thread {
     private Socket socket;
@@ -10,6 +14,8 @@ public class WriteThread extends Thread {
     private ReadThread readThread;
     private DataOutputStream dataOutputStream;
     private BufferedReader reader;
+
+    private String running = "false";
 
     public WriteThread(Socket socket, Client client) {
         this.socket = socket;
@@ -54,7 +60,9 @@ public class WriteThread extends Thread {
 
     public void sendLogout() {
         sendMessage("<command name=\"logout\"></command>");
-        readThread.shutdown();
+        if(readThread != null) {
+            readThread.shutdown();
+        }
         try{
             socket.close();
         }catch (IOException e){
@@ -74,40 +82,27 @@ public class WriteThread extends Thread {
 
     @Override
     public void run() {
-        String text;
-        Scanner scanner = new Scanner(System.in);
         try {
+            InputStream input = socket.getInputStream();
+            DataInputStream dataInputStream = new DataInputStream(input);
+            int messageLength = dataInputStream.readInt();
+            byte[] messageByte = new byte[messageLength];
+            dataInputStream.readFully(messageByte);
+            String serverResponse = new String(messageByte);
 
-            String serverResponse = reader.readLine();
-            if (serverResponse != null && serverResponse.contains("<success>")) {
+            if (serverResponse.contains("success")) {
+                running = "true";
                 client.setUserName(client.getUserName());
 
-                readThread = new ReadThread(socket, client);
-                readThread.start();
-                while (true){
-                    text = scanner.nextLine();
-                    if("list".equals(text)){
-                        sendListRequest();
-                    } else if ("logout".equals(text)) {
-                        readThread.shutdown();
-                        sendLogout();
-                        break;
-                    } else {
-                        sendMessage("<command name=\"message\"><message>" + text + "</message></command>");
-                    }
-                    if(text.equals("exit"))
-                        break;
-                }
+                readThread = new ReadThread(socket, client, ChatClientApp.getLatch());
+                readThread.run();
+            } else if (serverResponse.contains("error")) {
+                running = serverResponse;
+                ChatClientApp.showAlert("error", serverResponse);
             }
         } catch (IOException e) {
             System.out.println("Ошибка входа: " + e.getMessage());
             e.printStackTrace();
-        }
-
-        try {
-            socket.close();
-        } catch (IOException e) {
-            System.out.println("Ошибка при закрытии сокета: " + e.getMessage());
         }
     }
 }

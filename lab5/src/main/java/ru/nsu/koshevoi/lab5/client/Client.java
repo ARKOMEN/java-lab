@@ -12,7 +12,6 @@ public class Client {
     private String password;
     private ChatClientApp chatClientApp;
     private WriteThread writeThread;
-
     private boolean running = true;
 
     public Client(String hostname, int port, ChatClientApp chatClientApp, String userName, String password) {
@@ -23,26 +22,20 @@ public class Client {
         this.password = password;
     }
 
-    public void execute() {
+    public String execute() {
         try {
             Socket socket = new Socket(hostname, port);
             System.out.println(socket.getInetAddress());
             System.out.println(socket.getPort());
             writeThread = new WriteThread(socket, this);
-            writeThread.sendLogin(userName, password);
+            writeThread.sendLogin(userName, password);;
             writeThread.start();
-            /*
-            if(!running){
-                try{
-                    socket.close();
-                }catch (IOException e){
-                }
-            }*/
         } catch (UnknownHostException ex) {
             System.out.println("Сервер не найден: " + ex.getMessage());
         } catch (IOException ex) {
             System.out.println("I/O ошибка: " + ex.getMessage());
         }
+        return "true";
     }
 
     void setUserName(String userName) {
@@ -55,7 +48,7 @@ public class Client {
 
     public void sendMessage(String message) {
         if (writeThread != null) {
-            writeThread.sendMessage(message);
+            writeThread.sendMessage("<command name=\"message\"><message>" + message + "</message></command>");
         }
     }
 

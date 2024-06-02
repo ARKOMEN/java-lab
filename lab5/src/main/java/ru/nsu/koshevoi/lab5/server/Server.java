@@ -31,7 +31,7 @@ public class Server {
         }
 
         try(ServerSocket serverSocket = new ServerSocket(port)){
-            logger.info("Сервер запущен на порту: " + port);
+            logger.info("Сервер запущен на порту: " + port + " " + serverSocket.getInetAddress());
 
             while(true){
                 Socket socket = serverSocket.accept();

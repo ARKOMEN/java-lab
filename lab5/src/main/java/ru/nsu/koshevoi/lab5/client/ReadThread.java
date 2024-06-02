@@ -10,19 +10,21 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.*;
 import java.net.Socket;
 import java.util.Base64;
+import java.util.concurrent.CountDownLatch;
 
 public class ReadThread extends Thread{
     private Socket socket;
     private Client client;
+    private CountDownLatch latch;
 
     private volatile boolean running = true;
 
     private DataInputStream dataInputStream;
 
-    public ReadThread(Socket socket, Client client){
+    public ReadThread(Socket socket, Client client, CountDownLatch latch){
         this.socket = socket;
         this.client = client;
-
+        this.latch = latch;
         try{
             InputStream input = socket.getInputStream();
             dataInputStream = new DataInputStream(input);
@@ -34,33 +36,33 @@ public class ReadThread extends Thread{
 
     @Override
     public void run(){
+        try {
+            latch.await();
+        }catch (InterruptedException e){
+            Thread.currentThread().interrupt();
+        }
         while (running){
             try {
                 int messageLength = dataInputStream.readInt();
                 byte[] messageByte = new byte[messageLength];
                 dataInputStream.readFully(messageByte);
                 String response = new String(messageByte);
-
-                if(!response.equals("<success></success>")) {
-                    if (response.startsWith("<success><users>")) {
-                        handleUserList(response);
-                    } else if (response.startsWith("<event name=\"message\">")) {
-                        handleChatMessage(response);
-                    }else if(response.startsWith("<event name=\"userlogin\">")) {
-                        handleUserLogin(response);
-                    } else if (response.startsWith("<event name=\"userlogout\">")) {
-                        handleUserLogout(response);
-                    }else if(response.startsWith("<event name=\"recentMessages\">")) {
-                        handleRecentMessages(response);
-                    }else if (response.startsWith("<event name=\"file\">")) {
-                        handleFileEvent(response);
-                    } else if (response.startsWith("<success><id>")) {
-                        handleFileDownload(response);
-                    } else {
-                        System.out.println("\n" + response);
-                    }
-                }else{
-                    client.setRunning(false);
+                if (response.contains("users") || response.contains("Users")) {
+                    handleUserList(response);
+                } else if (response.contains("message")) {
+                    handleChatMessage(response);
+                }else if(response.contains("userlogin")) {
+                    handleUserLogin(response);
+                } else if (response.contains("userlogout")) {
+                    handleUserLogout(response);
+                }else if(response.contains("recentMessages")) {
+                    handleRecentMessages(response);
+                }else if (response.contains("file")) {
+                    handleFileEvent(response);
+                } else if (response.contains("id")) {
+                    handleFileDownload(response);
+                } else if(response.contains("error")){
+                    System.out.println("\n" + response);
                 }
             }catch (IOException e){
                 if(running) {
@@ -110,8 +112,9 @@ public class ReadThread extends Thread{
             Document doc = builder.parse(is);
 
             String message = doc.getElementsByTagName("message").item(0).getTextContent();
+            String name = doc.getElementsByTagName("from").item(0).getTextContent();
 
-            client.displayMessage(message);
+            client.displayMessage(name + " " + message);
         }catch (Exception e){
             System.out.println("Ошибка обработки сообщения: " + e.getMessage());
             e.printStackTrace();
@@ -126,11 +129,13 @@ public class ReadThread extends Thread{
             Document doc = builder.parse(is);
 
             NodeList userNodes = doc.getElementsByTagName("user");
+            if(userNodes.getLength() == 0){
+                userNodes = doc.getElementsByTagName("User");
+            }
             StringBuilder users = new StringBuilder("Список пользователей в чате:\n");
             for(int i = 0; i < userNodes.getLength(); i++){
                 Element userElement = (Element) userNodes.item(i);
-                String userName = userElement.getElementsByTagName("name").item(0).getTextContent();
-                users.append(" - ").append(userName).append("\n");
+                users.append(" - ").append(userElement.getElementsByTagName("name").item(0).getTextContent()).append("\n");
             }
             client.displayMessage(users.toString());
         }catch (Exception e){

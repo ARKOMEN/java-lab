@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.SplittableRandom;
+import java.util.concurrent.CountDownLatch;
 
 import static java.lang.System.exit;
 
@@ -32,10 +33,10 @@ public class ChatClientApp extends Application {
     private VBox chatLayout;
     private static int port;
     private static String ip;
+    private static CountDownLatch latch = new CountDownLatch(1);
+
 
     public static void main(String[] args) {
-        port = Integer.parseInt(args[1]);
-        ip = args[0];
         launch(args);
     }
 
@@ -54,8 +55,16 @@ public class ChatClientApp extends Application {
         PasswordField passwordField = new PasswordField();
         passwordField.setPromptText("Пароль");
 
+        TextField ipField = new TextField();
+        ipField.setPromptText("IP");
+
+        TextField portField = new TextField();
+        portField.setPromptText("PORT");
+
         Button loginButton = new Button("Войти");
         loginButton.setOnAction(e -> {
+            ip = ipField.getText();
+            port = Integer.parseInt(portField.getText());
             String username = usernameField.getText();
             String password = passwordField.getText();
             if (!username.isEmpty() && !password.isEmpty()) {
@@ -66,7 +75,7 @@ public class ChatClientApp extends Application {
             }
         });
 
-        VBox loginLayout = new VBox(10, usernameField, passwordField, loginButton);
+        VBox loginLayout = new VBox(10, usernameField, passwordField, ipField, portField, loginButton);
         loginLayout.setPadding(new Insets(20));
         Scene loginScene = new Scene(loginLayout, 300, 200);
 
@@ -76,6 +85,7 @@ public class ChatClientApp extends Application {
 
     private void showChatScene() {
         messageArea = new TextArea();
+        latch.countDown();
         messageArea.setEditable(false);
 
         inputField = new TextField();
@@ -153,11 +163,14 @@ public class ChatClientApp extends Application {
         primaryStage.close();
     }
 
-    private void showAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setContentText(message);
-        alert.showAndWait();
+    static public void showAlert(String title, String message) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle(title);
+            alert.setContentText(message);
+            alert.showAndWait();
+            exit(0);
+        });
     }
 
     public void notifyFileReceived(String fileId, String fileName) {
@@ -178,11 +191,14 @@ public class ChatClientApp extends Application {
             if (file != null) {
                 try {
                     Files.write(file.toPath(), fileContent);
-                    showAlert("Файл сохранен", "Файл успешно сохранен: " + file.getAbsolutePath());
                 } catch (IOException e) {
                     showAlert("Ошибка сохранения файла", "Не удалось сохранить файл: " + e.getMessage());
                 }
             }
         });
+    }
+
+    public static CountDownLatch getLatch(){
+        return latch;
     }
 }
